@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-single_03",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "single_03",
+    "prompt": "Execute Tifa scenario: preserve unrelated formatting",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/single_03.txt",
+    "category": "single_file_code",
+    "scenario": "preserve unrelated formatting",
+    "replay_focus": "affected paths",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/single_03.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-single_03",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "8214fc81eb54ad9b5cb0c4ccc331474a031881b71e5d8252f3b181b7252eeaee"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "single_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 107
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "single_03",
+        "category": "single_file_code",
+        "status": "completed",
+        "replay_focus": "affected paths",
+        "ordinal": 7
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/single_03.txt",
+        "content": "Tifa fixture single_03: preserve unrelated formatting"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "single_03"
+        ],
+        "token_estimate": 107
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "single_03",
+        "scenario": "preserve unrelated formatting",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/single_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-single_03",
+      "event_sequence": 1,
+      "state_digest": "c32e7aa20ebc8dd6ea6c36f1bbcef0a9536edea970f1d9389706229ab2ec8b61"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/single_03.txt",
+      "digest": "352bc013438ee2bc139b759fdc122554434806a7fc6b57310e494cdc3ac0da12",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "passed",
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "c32e7aa20ebc8dd6ea6c36f1bbcef0a9536edea970f1d9389706229ab2ec8b61",
+    "expected_report_digest": "4456bb44d7fc137995fb852d0aace0f1fd4d87790d5263330b80a26ce091bf65",
+    "tool_steps": 1,
+    "tokens": 107
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

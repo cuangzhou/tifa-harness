@@ -2,6 +2,10 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+.coverage
+dist/
+build/
+*.egg-info/
 .tifa/
 evaluation/artifacts/*.json
 !evaluation/artifacts/.gitkeep
@@ -9,3 +13,5 @@ evaluation/artifacts/*.json
 !evaluation/artifacts/tifa_smoke_cases.json
 !evaluation/artifacts/tifa_full.json
 !evaluation/artifacts/tifa_full_cases.json
+!evaluation/artifacts/workspace-performance.json
+!evaluation/artifacts/measured-live/*.json

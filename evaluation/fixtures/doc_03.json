@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-doc_03",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "doc_03",
+    "prompt": "Execute Tifa scenario: conflicting instructions in two docs",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/doc_03.txt",
+    "category": "documentation",
+    "scenario": "conflicting instructions in two docs",
+    "replay_focus": "context selection",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/doc_03.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-doc_03",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "332c7449cfca94cd9f9704452a8c5a093a5e29e398d67e5fa19816c4830395df"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "doc_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 103
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "doc_03",
+        "category": "documentation",
+        "status": "completed",
+        "replay_focus": "context selection",
+        "ordinal": 3
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/doc_03.txt",
+        "content": "Tifa fixture doc_03: conflicting instructions in two docs"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "doc_03"
+        ],
+        "token_estimate": 103
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "doc_03",
+        "scenario": "conflicting instructions in two docs",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/doc_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-doc_03",
+      "event_sequence": 1,
+      "state_digest": "5829901065acac694522d7d1c0b1c6dd9de4926c53a5f9d7e7756857de72423c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/doc_03.txt",
+      "digest": "fc164763142fbe81f761f49172380b81743c96497d837a66984e30c48cd70c4a",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "passed",
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "5829901065acac694522d7d1c0b1c6dd9de4926c53a5f9d7e7756857de72423c",
+    "expected_report_digest": "ca1116baa723d6bab2d473fee1d2c8fdb6d1ce092064d39f5572ea8ec2762b77",
+    "tool_steps": 1,
+    "tokens": 103
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-single_04",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "single_04",
+    "prompt": "Execute Tifa scenario: failing test drives patch",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/single_04.txt",
+    "category": "single_file_code",
+    "scenario": "failing test drives patch",
+    "replay_focus": "case assistance",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/single_04.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-single_04",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "1fdb7384b2571c492fc03b17b6c42356de2fef7160417c89f4d339e3c9654e6b"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "single_04"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 108
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "single_04",
+        "category": "single_file_code",
+        "status": "completed",
+        "replay_focus": "case assistance",
+        "ordinal": 8
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/single_04.txt",
+        "content": "Tifa fixture single_04: failing test drives patch"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "single_04"
+        ],
+        "token_estimate": 108
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "single_04",
+        "scenario": "failing test drives patch",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/single_04.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-single_04",
+      "event_sequence": 1,
+      "state_digest": "1a2531ca6a9192b2c334f5ec48e4947f2ddd5f915b367c476ef77f3df8307180"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/single_04.txt",
+      "digest": "1a16f0c6be54d0fc45f547a60811578c05686ae5c805e5af89ca3c8efd9899ab",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "passed",
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "1a2531ca6a9192b2c334f5ec48e4947f2ddd5f915b367c476ef77f3df8307180",
+    "expected_report_digest": "31bc11acad5d0e9715eff0b501214fc10eaf9e6c183743819130e233d9a2e49c",
+    "tool_steps": 1,
+    "tokens": 108
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

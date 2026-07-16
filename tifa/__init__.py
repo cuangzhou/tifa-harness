@@ -1,7 +1,6 @@
-"""Tifa public API. Pico is retained as a deprecated compatibility alias."""
-from .models import AgentResult, FakeModelClient, ModelClient, ModelResponse
-from .runtime import Tifa, build_agent
+"""Tifa public API."""
+from .models import AgentResult, FakeModelClient, ModelClient, ModelResponse, ToolCall
+from .runtime import RunBudget, Tifa, build_agent
+from .execution import DockerExecutionBackend, ExecutionPolicy, ExecutionRequest, ExecutionResult, LocalExecutionBackend, ResourceLimits
 
-Pico = Tifa
-
-__all__ = ["AgentResult", "FakeModelClient", "ModelClient", "ModelResponse", "Pico", "Tifa", "build_agent"]
+__all__ = ["AgentResult", "DockerExecutionBackend", "ExecutionPolicy", "ExecutionRequest", "ExecutionResult", "FakeModelClient", "LocalExecutionBackend", "ModelClient", "ModelResponse", "ResourceLimits", "RunBudget", "ToolCall", "Tifa", "build_agent"]

@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-resume_03",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "resume_03",
+    "prompt": "Execute Tifa scenario: missing final report",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/resume_03.txt",
+    "category": "interruption_recovery",
+    "scenario": "missing final report",
+    "replay_focus": "artifact tolerance",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/resume_03.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-resume_03",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "30503ee4292d8a7f27622325a9ac6cca19153332a2ff10f42bd1fc9773be160d"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "resume_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 121
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "resume_03",
+        "category": "interruption_recovery",
+        "status": "completed",
+        "replay_focus": "artifact tolerance",
+        "ordinal": 21
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/resume_03.txt",
+        "content": "Tifa fixture resume_03: missing final report"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "resume_03"
+        ],
+        "token_estimate": 121
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "resume_03",
+        "scenario": "missing final report",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/resume_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-resume_03",
+      "event_sequence": 1,
+      "state_digest": "3d55380ce38e6ca57547bd10bcda7c3d85daf154613449154e26bb8423bbb37b"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/resume_03.txt",
+      "digest": "794f518481a1a730dddefc0156081167ab115a43466ab4fadbf45bb44cee8cd0",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "passed",
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "3d55380ce38e6ca57547bd10bcda7c3d85daf154613449154e26bb8423bbb37b",
+    "expected_report_digest": "fa5cc77094d9bfe04160c3e05fd8f7c246f4ab54ce83f124a50fecfc2a622b88",
+    "tool_steps": 1,
+    "tokens": 121
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

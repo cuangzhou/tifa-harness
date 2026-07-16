@@ -1,73 +1,129 @@
 {
-  "schema_version": "evidence-bundle.v1",
+  "schema_version": "evidence-bundle.v2",
   "run_id": "fixture-resume_02",
-  "created_at": "2026-07-14T00:00:00+00:00",
+  "created_at": "2026-07-16T00:00:00+00:00",
   "task_contract": {
     "task_id": "resume_02",
-    "prompt": "Deterministic replay fixture resume_02",
+    "prompt": "Execute Tifa scenario: interrupt after partial patch",
     "allowed_tools": [
-      "read",
-      "write"
+      "read_file",
+      "patch_file"
     ],
-    "step_budget": 8,
-    "expected_artifact": "output.txt"
+    "step_budget": 4,
+    "expected_artifact": "artifacts/resume_02.txt",
+    "category": "interruption_recovery",
+    "scenario": "interrupt after partial patch",
+    "replay_focus": "workspace consistency",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/resume_02.txt"
+        }
+      ]
+    }
   },
   "repo_snapshot": {
     "snapshot_id": "snapshot-resume_02",
     "commit": null,
     "dirty": false,
-    "workspace_digest": "fixture-resume_02"
+    "workspace_digest": "45e5f07e9a08423b150b34b3022b5f574ecb06fbd28935c93e9c5055ad2d2d93"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "resume_02"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 120
   },
   "events": [
     {
       "sequence": 1,
       "type": "state_patch",
-      "timestamp": "2026-07-14T00:00:01+00:00",
+      "timestamp": "2026-07-16T00:00:00+00:00",
       "payload": {
-        "status": "completed"
+        "fixture_id": "resume_02",
+        "category": "interruption_recovery",
+        "status": "failed",
+        "replay_focus": "workspace consistency",
+        "ordinal": 20
       }
     },
     {
       "sequence": 2,
       "type": "artifact",
-      "timestamp": "2026-07-14T00:00:02+00:00",
+      "timestamp": "2026-07-16T00:00:01+00:00",
       "payload": {
-        "path": "output.txt",
-        "content": "fixture artifact"
+        "path": "artifacts/resume_02.txt",
+        "content": "Tifa fixture resume_02: interrupt after partial patch"
       }
     },
     {
       "sequence": 3,
-      "type": "verifier",
-      "timestamp": "2026-07-14T00:00:03+00:00",
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
       "payload": {
-        "passed": false,
-        "failure_category": "interrupted_partial_state"
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "resume_02"
+        ],
+        "token_estimate": 120
       }
     },
     {
       "sequence": 4,
       "type": "report",
-      "timestamp": "2026-07-14T00:00:04+00:00",
+      "timestamp": "2026-07-16T00:00:03+00:00",
       "payload": {
-        "status": "passed"
+        "fixture_id": "resume_02",
+        "scenario": "interrupt after partial patch",
+        "stop_reason": "interrupted_partial_state",
+        "affected_paths": [
+          "artifacts/resume_02.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "failed",
+        "passed": false,
+        "failure_category": "interrupted_partial_state"
       }
     }
   ],
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-resume_02",
+      "event_sequence": 1,
+      "state_digest": "5edaa41da9ab1730e8fc70432e0405d699d2d51a58107f72c7e0dba20b4efbf5"
+    }
+  ],
   "artifacts": [
     {
-      "path": "output.txt",
-      "digest": "5a4050578fcf57be094c5f13a882a23a86a00ab3a7f6feaf9bb578661f24875d",
-      "status": "recorded"
+      "path": "artifacts/resume_02.txt",
+      "digest": "b875bea07644f85029312a3321b3352b9b8e065dc8b31293813f345f2fdffcc0",
+      "status": "modified"
     }
   ],
   "verifier": {
+    "status": "failed",
     "passed": false,
     "failure_category": "interrupted_partial_state"
   },
   "metrics": {
-    "expected_state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c",
-    "expected_report_digest": "76f1805001bc4f155c8efa5651c57c4f1858af1f6786cbe4596214a4b64375a6"
+    "expected_state_digest": "5edaa41da9ab1730e8fc70432e0405d699d2d51a58107f72c7e0dba20b4efbf5",
+    "expected_report_digest": "93ca874d3150029748ef20ba857b34bc03de73050654416220d4981bc4eaaf9d",
+    "tool_steps": 1,
+    "tokens": 120
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
   }
 }

@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-side_effect_03",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "side_effect_03",
+    "prompt": "Execute Tifa scenario: resume after successful write",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/side_effect_03.txt",
+    "category": "duplicate_side_effect",
+    "scenario": "resume after successful write",
+    "replay_focus": "no double apply",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/side_effect_03.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-side_effect_03",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "217c3b2dee6ff008da57c73623d2be16b283b0d54bc4d3d7c06fccab5e724cf2"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "side_effect_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 124
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "side_effect_03",
+        "category": "duplicate_side_effect",
+        "status": "completed",
+        "replay_focus": "no double apply",
+        "ordinal": 24
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/side_effect_03.txt",
+        "content": "Tifa fixture side_effect_03: resume after successful write"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "side_effect_03"
+        ],
+        "token_estimate": 124
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "side_effect_03",
+        "scenario": "resume after successful write",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/side_effect_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-side_effect_03",
+      "event_sequence": 1,
+      "state_digest": "2e280020982988e1b04bbe88bce1a1f889801d7cddd44fc704f0906dded7183f"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/side_effect_03.txt",
+      "digest": "9fa02ef512fc76600e72fa8f1db08f06c9e1ed0c82d378fccbdf9ff047876c88",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "passed",
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "2e280020982988e1b04bbe88bce1a1f889801d7cddd44fc704f0906dded7183f",
+    "expected_report_digest": "e815e37fc117ddd38634337069a6547a2ccf5d87484354069d81aa87c07d4643",
+    "tool_steps": 1,
+    "tokens": 124
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

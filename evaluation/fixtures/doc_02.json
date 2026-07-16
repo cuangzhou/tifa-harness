@@ -1,73 +1,129 @@
 {
-  "schema_version": "evidence-bundle.v1",
+  "schema_version": "evidence-bundle.v2",
   "run_id": "fixture-doc_02",
-  "created_at": "2026-07-14T00:00:00+00:00",
+  "created_at": "2026-07-16T00:00:00+00:00",
   "task_contract": {
     "task_id": "doc_02",
-    "prompt": "Deterministic replay fixture doc_02",
+    "prompt": "Execute Tifa scenario: section insertion with formatting preserved",
     "allowed_tools": [
-      "read",
-      "write"
+      "read_file",
+      "patch_file"
     ],
-    "step_budget": 8,
-    "expected_artifact": "output.txt"
+    "step_budget": 4,
+    "expected_artifact": "artifacts/doc_02.txt",
+    "category": "documentation",
+    "scenario": "section insertion with formatting preserved",
+    "replay_focus": "artifact digest",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/doc_02.txt"
+        }
+      ]
+    }
   },
   "repo_snapshot": {
     "snapshot_id": "snapshot-doc_02",
     "commit": null,
     "dirty": false,
-    "workspace_digest": "fixture-doc_02"
+    "workspace_digest": "2d37c9f0dcb862059612559807781a16996d021cd02630b6dc74b24ce203ed9f"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "doc_02"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 102
   },
   "events": [
     {
       "sequence": 1,
       "type": "state_patch",
-      "timestamp": "2026-07-14T00:00:01+00:00",
+      "timestamp": "2026-07-16T00:00:00+00:00",
       "payload": {
-        "status": "completed"
+        "fixture_id": "doc_02",
+        "category": "documentation",
+        "status": "completed",
+        "replay_focus": "artifact digest",
+        "ordinal": 2
       }
     },
     {
       "sequence": 2,
       "type": "artifact",
-      "timestamp": "2026-07-14T00:00:02+00:00",
+      "timestamp": "2026-07-16T00:00:01+00:00",
       "payload": {
-        "path": "output.txt",
-        "content": "fixture artifact"
+        "path": "artifacts/doc_02.txt",
+        "content": "Tifa fixture doc_02: section insertion with formatting preserved"
       }
     },
     {
       "sequence": 3,
-      "type": "verifier",
-      "timestamp": "2026-07-14T00:00:03+00:00",
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
       "payload": {
-        "passed": true,
-        "failure_category": null
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "doc_02"
+        ],
+        "token_estimate": 102
       }
     },
     {
       "sequence": 4,
       "type": "report",
-      "timestamp": "2026-07-14T00:00:04+00:00",
+      "timestamp": "2026-07-16T00:00:03+00:00",
       "payload": {
-        "status": "passed"
+        "fixture_id": "doc_02",
+        "scenario": "section insertion with formatting preserved",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/doc_02.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
       }
     }
   ],
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-doc_02",
+      "event_sequence": 1,
+      "state_digest": "18e04694f8784036e554e25b99d068e15d44a31d3026c47ccd21d5b9977d5523"
+    }
+  ],
   "artifacts": [
     {
-      "path": "output.txt",
-      "digest": "5a4050578fcf57be094c5f13a882a23a86a00ab3a7f6feaf9bb578661f24875d",
-      "status": "recorded"
+      "path": "artifacts/doc_02.txt",
+      "digest": "afe9467df606b1970aff6f66d5f1680d5a028814b8f3dce4728134ab3c363771",
+      "status": "modified"
     }
   ],
   "verifier": {
+    "status": "passed",
     "passed": true,
     "failure_category": null
   },
   "metrics": {
-    "expected_state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c",
-    "expected_report_digest": "76f1805001bc4f155c8efa5651c57c4f1858af1f6786cbe4596214a4b64375a6"
+    "expected_state_digest": "18e04694f8784036e554e25b99d068e15d44a31d3026c47ccd21d5b9977d5523",
+    "expected_report_digest": "7e7dbbb5607e2bb2de1c06c76349e03c9918edaed1995fc94a0a6f362a664df5",
+    "tool_steps": 1,
+    "tokens": 102
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
   }
 }

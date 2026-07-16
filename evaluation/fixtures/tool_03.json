@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-tool_03",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "tool_03",
+    "prompt": "Execute Tifa scenario: verifier process timeout",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/tool_03.txt",
+    "category": "tool_failure",
+    "scenario": "verifier process timeout",
+    "replay_focus": "failure category",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/tool_03.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-tool_03",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "76d026758202ee8d42f7400daf10d015d5d4aea9279201b74c98ed712437defd"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "tool_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 118
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "tool_03",
+        "category": "tool_failure",
+        "status": "failed",
+        "replay_focus": "failure category",
+        "ordinal": 18
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/tool_03.txt",
+        "content": "Tifa fixture tool_03: verifier process timeout"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "tool_03"
+        ],
+        "token_estimate": 118
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "tool_03",
+        "scenario": "verifier process timeout",
+        "stop_reason": "tool_failure",
+        "affected_paths": [
+          "artifacts/tool_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "failed",
+        "passed": false,
+        "failure_category": "tool_failure"
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-tool_03",
+      "event_sequence": 1,
+      "state_digest": "d0a7aaffc44650890c046a08122686b8f9ea1771bf3599d3b3855a6d48d56869"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/tool_03.txt",
+      "digest": "2bcbe761bddbe6d896e3f3f7452533b3dcf687d021408a7be1b11381d8e8ae74",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "failed",
+    "passed": false,
+    "failure_category": "tool_failure"
+  },
+  "metrics": {
+    "expected_state_digest": "d0a7aaffc44650890c046a08122686b8f9ea1771bf3599d3b3855a6d48d56869",
+    "expected_report_digest": "2dd5cb075d69e3cfa86259018975f2f6c5d4569bb700dd551e680af8478b2892",
+    "tool_steps": 1,
+    "tokens": 118
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

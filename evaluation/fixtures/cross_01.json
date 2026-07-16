@@ -1,0 +1,129 @@
+{
+  "schema_version": "evidence-bundle.v2",
+  "run_id": "fixture-cross_01",
+  "created_at": "2026-07-16T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "cross_01",
+    "prompt": "Execute Tifa scenario: interface and implementation update",
+    "allowed_tools": [
+      "read_file",
+      "patch_file"
+    ],
+    "step_budget": 4,
+    "expected_artifact": "artifacts/cross_01.txt",
+    "category": "cross_file_code",
+    "scenario": "interface and implementation update",
+    "replay_focus": "context manifest",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/cross_01.txt"
+        }
+      ]
+    }
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-cross_01",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "08b070df4ee0a367cc6596c7fbd786e3ef1a1dae588cdab8fbb0b7feb28ff071"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "cross_01"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 109
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-16T00:00:00+00:00",
+      "payload": {
+        "fixture_id": "cross_01",
+        "category": "cross_file_code",
+        "status": "completed",
+        "replay_focus": "context manifest",
+        "ordinal": 9
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-16T00:00:01+00:00",
+      "payload": {
+        "path": "artifacts/cross_01.txt",
+        "content": "Tifa fixture cross_01: interface and implementation update"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
+      "payload": {
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "cross_01"
+        ],
+        "token_estimate": 109
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-16T00:00:03+00:00",
+      "payload": {
+        "fixture_id": "cross_01",
+        "scenario": "interface and implementation update",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/cross_01.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "cp-cross_01",
+      "event_sequence": 1,
+      "state_digest": "1fa4fc002a5a161ec45c18c0ac17f979c627787202544997ce6892f0f84dba7c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/cross_01.txt",
+      "digest": "bda31ca2a5f73c974946ab75a8341cd0b8d054c5b6edee6b78ff7d7b9b88b98b",
+      "status": "modified"
+    }
+  ],
+  "verifier": {
+    "status": "passed",
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "1fa4fc002a5a161ec45c18c0ac17f979c627787202544997ce6892f0f84dba7c",
+    "expected_report_digest": "3f3ceb016f83104cdacb172e29e9ec7f527eb886bc5973407547ce8a00b43808",
+    "tool_steps": 1,
+    "tokens": 109
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tifa.local/schemas/case-card.v1.json",
+  "title": "Tifa CaseCard v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "case_id", "task_signature", "failure_signature", "minimal_delta", "evidence_refs", "verification_status", "applicability"],
+  "properties": {
+    "schema_version": {"const": "case-card.v1"},
+    "case_id": {"type": "string"},
+    "task_signature": {"type": "object", "required": ["category", "tool_pattern"], "additionalProperties": true},
+    "failure_signature": {"type": "object", "required": ["category", "stop_reason"], "additionalProperties": true},
+    "minimal_delta": {
+      "type": "object",
+      "required": ["variable", "before", "after"],
+      "properties": {"variable": {"type": "string"}, "before": {}, "after": {}},
+      "additionalProperties": false
+    },
+    "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+    "verification_status": {"enum": ["candidate", "verified", "rejected", "superseded"]},
+    "verification_run_id": {"type": ["string", "null"]},
+    "applicability": {"type": "object", "required": ["allowed_categories", "excluded_conditions"], "additionalProperties": true},
+    "summary": {"type": "string", "maxLength": 1200}
+  }
+}

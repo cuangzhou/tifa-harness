@@ -1,12 +1,12 @@
 {
   "project": "Tifa",
-  "benchmark": "offline-replay-smoke",
-  "dataset_version": "pico-offline-fixtures-v1",
+  "benchmark": "replay-smoke",
+  "dataset_version": "tifa-replay-fixtures-v3",
   "result_kind": "measured",
   "implementation_status": "integrated",
-  "git_commit": "unversioned",
+  "git_commit": "665599586ada57284c3082bd31ab4b007710db13",
   "command": "tifa benchmark replay --mode smoke",
-  "case_count": 12,
+  "case_count": 24,
   "repetitions": 1,
   "seed": 20260714,
   "metrics": {
@@ -14,36 +14,43 @@
     "verifier_reproduction_rate": 1.0,
     "artifact_digest_match_rate": 1.0,
     "report_reconstruction_rate": 1.0,
-    "mean_replay_duration_ms": 0.4501833338205567,
-    "p95_replay_duration_ms": 0.5029000003560213,
+    "checkpoint_digest_match_rate": 1.0,
+    "mean_replay_duration_ms": 0.45604166681793384,
+    "duration_variance": 0.0006008082721008276,
+    "p95_replay_duration_ms": 0.4867999996349681,
     "failure_type_distribution": {
-      "none": 10,
+      "none": 20,
       "interrupted_partial_state": 1,
-      "policy_denied": 1
+      "policy_denied": 1,
+      "tool_failure": 2
     },
     "planned_fixture_count": 24,
-    "executed_fixture_count": 12,
-    "unimplemented_fixture_count": 12,
+    "executed_fixture_count": 24,
+    "unimplemented_fixture_count": 0,
     "experimental_groups": {
-      "offline_replay": "MEASURED",
-      "replay_only": "NOT_IMPLEMENTED",
-      "verified_case_assisted": "NOT_IMPLEMENTED",
-      "irrelevant_case_injected": "NOT_IMPLEMENTED"
+      "baseline": {
+        "runs": 24,
+        "verifier_pass_rate": 0.8333333333333334,
+        "replay_consistency": 1.0,
+        "duplicate_side_effect_rate": 0.0,
+        "mean_duration_ms": 0.45604166681793384,
+        "duration_variance": 0.0006008082721008276
+      }
     },
-    "case_assistance_delta": "NOT_IMPLEMENTED",
-    "checkpoint_reexecution_rate": "NOT_IMPLEMENTED",
-    "forked_replay": "NOT_IMPLEMENTED",
-    "counterfactual_replay": "NOT_IMPLEMENTED"
+    "case_assistance_delta": 0.0,
+    "checkpoint_reexecution_rate": "MEASURED_BY_INTERRUPTION_MATRIX_TESTS",
+    "forked_replay": "MEASURED_BY_ISOLATION_TESTS",
+    "counterfactual_replay": "MEASURED_BY_CONSTRAINT_TESTS"
   },
   "limitations": [
-    "仅验证 12 个历史 Pico Offline Replay fixture",
-    "full 的 case_count=24 是规划矩阵规模，executed_fixture_count 才是实际执行数",
-    "确定性 fixture 不代表真实模型任务成功率",
-    "Forked、Counterfactual 与案例辅助尚未实现"
+    "24 个 fixture 均为独立确定性工程合同，不代表真实模型任务成功率",
+    "四组实验真实改变 context manifest；案例辅助增益仍只适用于离线确定性基线",
+    "Forked/Counterfactual 的 Runtime 执行能力由隔离、override 与 continuation 测试测量",
+    "live provider smoke test 默认跳过"
   ],
   "environment": {
     "python": "3.12.5",
     "platform": "Windows-11-10.0.26200-SP0"
   },
-  "generated_at": "2026-07-15T23:53:25.735220+00:00"
+  "generated_at": "2026-07-16T01:25:52.371677+00:00"
 }
