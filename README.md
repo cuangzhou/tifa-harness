@@ -1,8 +1,8 @@
 # Tifa
 
-Tifa 是面向代码仓库长任务的本地 Agent Harness，提供有状态 Agent Loop、结构化 Tool Calling、分层上下文、结构化记忆、受治理工具、durable checkpoint/resume、证据工件和可隔离 Replay。
 
 仓库中的能力与指标只以当前源码、测试和可重新生成的 measured artifact 为证据。
+Tifa 是本地代码 Agent Harness。它面向代码仓库长任务，提供有状态 Agent Loop、分层上下文、结构化记忆、受治理工具、checkpoint/resume、运行工件、trace 和确定性 Offline Replay。
 
 ## 快速开始
 
