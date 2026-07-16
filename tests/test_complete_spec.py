@@ -16,7 +16,7 @@ def test_structured_tool_call_and_unconfigured_verifier(tmp_path: Path):
     response = ModelResponse(tool_calls=[ToolCall("call-1", "read_file", {"path": "a.txt"})])
     result = build_agent(tmp_path, FakeModelClient([response, "<final>done</final>"]), approval_policy="never").ask("read")
     bundle = json.loads((Path(result.run_dir) / "evidence_bundle.json").read_text(encoding="utf-8"))
-    assert bundle["schema_version"] == "evidence-bundle.v2"
+    assert bundle["schema_version"] == "evidence-bundle.v3"
     assert bundle["verifier"]["status"] == "not_configured" and bundle["verifier"]["passed"] is None
     assert bundle["checkpoints"]
 

@@ -9,6 +9,8 @@ import tempfile
 import time
 from typing import Any
 
+from .contracts import TaskContract
+
 
 def digest(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -73,7 +75,7 @@ class ReplayResult:
 class ReplayRunner:
     def _offline(self, bundle_path: Path) -> ReplayDiffReport:
         started = time.perf_counter(); bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-        if bundle.get("schema_version") not in {"evidence-bundle.v1", "evidence-bundle.v2"}: raise ValueError("unsupported EvidenceBundle schema")
+        if bundle.get("schema_version") not in {"evidence-bundle.v1", "evidence-bundle.v2", "evidence-bundle.v3"}: raise ValueError("unsupported EvidenceBundle schema")
         events = sorted(bundle["events"], key=lambda event: event["sequence"])
         if [e["sequence"] for e in events] != list(range(1, len(events) + 1)): raise ValueError("trace event sequences must be contiguous from 1")
         state: dict[str, Any] = {}; report: dict[str, Any] = {}; artifacts: dict[str, Any] = {}; verifier: dict[str, Any] = {}
@@ -118,7 +120,9 @@ class ReplayRunner:
             agent = Tifa.resume_run(target, model_client, chosen.source_run_id, chosen.checkpoint_id, allow_snapshot_copy=True, runtime_overrides={"provider", "model"} if "provider" in overrides else set(), approval_policy="never", context_policy=overrides.get("context_policy", "layered-budget-v2"), memory_enabled=overrides.get("memory_enabled", True))
             if overrides.get("memory_enabled") is False: agent.memory = LayeredMemory()
             contract = source_bundle["task_contract"]
-            result = agent.ask(contract["prompt"], verifier=contract.get("verifier"))
+            prompt = contract.get("goal", contract.get("prompt", "Continue replay task"))
+            source_contract = TaskContract.from_dict(contract) if source_bundle.get("schema_version") == "evidence-bundle.v3" else None
+            result = agent.ask(prompt, verifier=contract.get("verifier"), contract=source_contract)
             replay_run_id = result.run_id; replay_path = Path(result.run_dir) / "evidence_bundle.json"; replay_bundle = json.loads(replay_path.read_text(encoding="utf-8"))
             cleaned = True
         after = workspace_digest(workspace); base.source_unchanged = before == after

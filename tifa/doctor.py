@@ -20,6 +20,10 @@ def doctor(workspace: str | Path, model: str = "qwen2.5-coder:3b", ollama_url: s
         checks["gpu_runtime"] = {"ok": "nvidia" in runtimes, "available": sorted(runtimes)}
     except Exception as exc: checks["gpu_runtime"] = {"ok": False, "error": type(exc).__name__}
     try:
+        security = json.loads(subprocess.check_output(["docker", "info", "--format", "{{json .SecurityOptions}}"], text=True, timeout=10)); checks["rootless"] = {"ok": any("rootless" in item for item in security), "required": False, "security_options": security}
+    except Exception as exc: checks["rootless"] = {"ok": False, "required": False, "error": type(exc).__name__}
+    seccomp = Path(__file__).resolve().parents[1] / "docker" / "seccomp-tifa-v1.json"; checks["seccomp_profile"] = {"ok": seccomp.is_file(), "path": str(seccomp)}
+    try:
         with urlopen(f"{ollama_url}/api/tags", timeout=3) as response: tags = json.load(response)
         names = [entry.get("name", "") for entry in tags.get("models", [])]
         checks["ollama"] = {"ok": True, "url": ollama_url}; checks["model"] = {"ok": any(name == model or name.startswith(model + ":") for name in names), "requested": model, "available": names}

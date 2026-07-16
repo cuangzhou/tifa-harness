@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 import re
 from typing import Any, Callable
 
@@ -32,22 +33,30 @@ def call_fingerprint(name: str, arguments: dict[str, Any]) -> str:
 
 
 class ToolRegistry:
-    def __init__(self, workspace: WorkspaceContext, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, delegate: Callable[[str, int], str] | None = None, depth: int = 0, max_depth: int = 1, execution_backend: ExecutionBackend | None = None, resource_limits: ResourceLimits | None = None, execution_policy: ExecutionPolicy | None = None) -> None:
+    def __init__(self, workspace: WorkspaceContext, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, delegate: Callable[[str, int], str] | None = None, depth: int = 0, max_depth: int = 1, execution_backend: ExecutionBackend | None = None, resource_limits: ResourceLimits | None = None, execution_policy: ExecutionPolicy | None = None, allowed_tools: set[str] | None = None, writable_paths: list[str] | None = None) -> None:
         if approval_policy not in {"never", "on-risk", "always"}:
             raise ValueError("invalid approval policy")
         self.workspace, self.approval_policy, self.approver = workspace, approval_policy, approver
         self.delegate_fn, self.depth, self.max_depth = delegate, depth, max_depth
         self.execution_backend = execution_backend or LocalExecutionBackend(); self.resource_limits = resource_limits or ResourceLimits(); self.execution_policy = execution_policy or ExecutionPolicy()
         self.last_execution: ExecutionResult | None = None
+        self.allowed_tools, self.writable_paths = allowed_tools, writable_paths or []
 
     @property
     def names(self) -> list[str]:
         names = list(SPECS)
+        if self.allowed_tools is not None: names = [name for name in names if name in self.allowed_tools]
         if self.depth > 0:
             return [name for name in names if name in READ_ONLY and name != "delegate"]
         if self.depth >= self.max_depth or not self.delegate_fn:
-            names.remove("delegate")
+            if "delegate" in names: names.remove("delegate")
         return names
+
+    def _check_write_path(self, path: Path) -> None:
+        if not self.writable_paths: return
+        relative = path.relative_to(self.workspace.repo_root).as_posix()
+        if not any(relative == prefix.rstrip("/") or relative.startswith(prefix.rstrip("/") + "/") for prefix in self.writable_paths):
+            raise PermissionError(f"write path is outside contract allowlist: {relative}")
 
     def schemas(self) -> list[dict[str, Any]]:
         return [SPECS[name] for name in self.names]
@@ -100,11 +109,13 @@ class ToolRegistry:
             return result_text(self.last_execution), affected
         if name == "write_file":
             path = self.workspace.resolve(str(args["path"])); path.parent.mkdir(parents=True, exist_ok=True)
+            self._check_write_path(path)
             if path.exists() and path.is_dir(): raise ValueError("write_file target is a directory")
             path.write_text(str(args["content"]), encoding="utf-8"); affected.append(str(path.relative_to(self.workspace.repo_root)))
             return f"wrote {affected[0]}", affected
         if name == "patch_file":
             path = self.workspace.resolve(str(args["path"]), must_exist=True)
+            self._check_write_path(path)
             old, new = str(args["old_text"]), str(args["new_text"])
             content = path.read_text(encoding="utf-8")
             if not old or content.count(old) != 1: raise ValueError("old_text must occur exactly once")

@@ -1,0 +1,30 @@
+{
+  "schema_version": "tifa-professional-suite.v1",
+  "generator": "tifa.eval_suite:professional_tasks",
+  "task_count": 100,
+  "local_baseline_count": 30,
+  "ordering": "category-round-robin",
+  "categories": {
+    "locate_explain": 15,
+    "single_file": 20,
+    "cross_file": 20,
+    "test_repair": 15,
+    "tool_recovery": 10,
+    "checkpoint_resume": 5,
+    "irrelevant_context": 5,
+    "duplicate_side_effect": 5,
+    "verifier_security": 5
+  },
+  "repetitions": {
+    "openai-compatible": 3,
+    "anthropic-compatible": 3,
+    "ollama": 1
+  },
+  "release_gates": {
+    "cloud_verifier_pass_rate_minimum": 0.8,
+    "duplicate_side_effect_rate_maximum": 0.0,
+    "recovery_success_rate_minimum": 0.9,
+    "provider_schema_failure_rate_maximum": 0.02,
+    "local_verifier_pass_rate_minimum": 0.5
+  }
+}
