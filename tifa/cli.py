@@ -75,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         spec = ReplaySpec(**json.loads(args.spec.read_text(encoding="utf-8"))) if args.spec else None
         replay_client = None if args.mode == "offline" else (FakeModelClient() if args.provider == "fake" else create_model_client(args.provider, args.model))
         result = ReplayRunner().replay(args.bundle, args.mode, spec=spec, workspace=args.workspace, model_client=replay_client)
-        payload = asdict(result) if isinstance(result, (ReplayDiffReport, ReplayResult)) else result
+        payload: Any = asdict(result) if isinstance(result, (ReplayDiffReport, ReplayResult)) else result
         if args.output: args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         consistent = payload.get("replay_consistent", payload.get("report", {}).get("replay_consistent", False))
         print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0 if consistent else 1
@@ -113,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
         else: command_parser().error("eval requires live, local, provider, or all")
         print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0
     if getattr(args, "command", None) == "run":
-        contract = TaskContract.from_dict(json.loads(args.contract.read_text(encoding="utf-8"))); client = FakeModelClient() if args.provider == "fake" else create_model_client(args.provider, args.model); result = build_agent(args.cwd, client, approval_policy="never").ask(contract.goal, contract=contract); print(json.dumps(asdict(result), ensure_ascii=False, indent=2)); return 0 if result.stop_reason == "final_answer_returned" else 1
+        contract = TaskContract.from_dict(json.loads(args.contract.read_text(encoding="utf-8"))); client = FakeModelClient() if args.provider == "fake" else create_model_client(args.provider, args.model); run_result = build_agent(args.cwd, client, approval_policy="never").ask(contract.goal, contract=contract); print(json.dumps(asdict(run_result), ensure_ascii=False, indent=2)); return 0 if run_result.stop_reason == "final_answer_returned" else 1
     if getattr(args, "command", None) == "inspect":
         if args.inspect_command != "run": command_parser().error("inspect requires run")
         payload = load_run(Path(args.cwd), args.run_id); payload["lineage"] = continuation_lineage(Path(args.cwd).resolve(), args.run_id) if args.lineage else []; print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0

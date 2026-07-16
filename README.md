@@ -57,4 +57,8 @@ Offline replay never invokes a provider or real tools. Forked replay uses a temp
 
 Version 0.5.0 is a local CLI and Python SDK, not a remote multi-tenant service. Docker/Linux provides the strong command boundary; Windows local execution remains degraded. Live provider measurements are never mixed with deterministic fixture metrics. Resource limits are container controls, not a claim of formal isolation.
 
+The current release candidate does not yet satisfy its live-model release gates. The measured 30-task `qwen2.5-coder:3b` run at temperature 0 achieved a 40% verifier pass rate (12/30), below the 50% non-regression target; duplicate side effects were 0, recovery success was 100%, and provider/schema failures were 0. OpenAI-compatible and Anthropic-compatible 100-task, three-repetition evaluations have not been run because credentials and an evaluation cost authorization were not available. These missing or failed gates are recorded as such and are not inferred from offline tests.
+
+Measured evidence is stored under `evaluation/artifacts/measured-live/`; the professional suite definition is `evaluation/professional_suite.v1.json`.
+
 See [configuration](docs/configuration.md), [security policy](SECURITY.md), and [changelog](CHANGELOG.md).

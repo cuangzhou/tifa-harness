@@ -1,0 +1,48 @@
+{
+  "schema_version": "tifa-release-readiness.v1",
+  "result_kind": "measured-and-gated",
+  "version": "0.5.0",
+  "code_version": "9b1b4a06f2fd2d005808a20f39c5fcdfb945e0ee",
+  "overall_release_gate_passed": false,
+  "gates": {
+    "ollama_local": {
+      "status": "FAILED_THRESHOLD",
+      "artifact": "professional-ollama-30-v0.5.0.json",
+      "model": "qwen2.5-coder:3b",
+      "executed_tasks": 30,
+      "repetitions": 1,
+      "verifier_pass_rate": 0.4,
+      "required_verifier_pass_rate": 0.5,
+      "duplicate_side_effect_rate": 0.0,
+      "recovery_success_rate": 1.0,
+      "provider_schema_failure_rate": 0.0
+    },
+    "openai_compatible": {
+      "status": "NOT_RUN_MISSING_CREDENTIALS_AND_COST_AUTHORIZATION",
+      "planned_tasks": 100,
+      "planned_repetitions": 3,
+      "required_verifier_pass_rate": 0.8
+    },
+    "anthropic_compatible": {
+      "status": "NOT_RUN_MISSING_CREDENTIALS_AND_COST_AUTHORIZATION",
+      "planned_tasks": 100,
+      "planned_repetitions": 3,
+      "required_verifier_pass_rate": 0.8
+    }
+  },
+  "local_failure_distribution": {
+    "invalid_arguments": 3,
+    "loop_detected": 15
+  },
+  "local_category_results": {
+    "locate_explain": {"passed": 0, "executed": 4},
+    "single_file": {"passed": 0, "executed": 4},
+    "cross_file": {"passed": 0, "executed": 4},
+    "test_repair": {"passed": 0, "executed": 3},
+    "tool_recovery": {"passed": 3, "executed": 3},
+    "checkpoint_resume": {"passed": 0, "executed": 3},
+    "irrelevant_context": {"passed": 3, "executed": 3},
+    "duplicate_side_effect": {"passed": 3, "executed": 3},
+    "verifier_security": {"passed": 3, "executed": 3}
+  }
+}

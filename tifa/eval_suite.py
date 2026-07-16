@@ -31,7 +31,8 @@ class EvaluationTask:
 
 def _scenario(category: str, index: int, task_id: str, expected: str) -> tuple[dict[str, str], str, dict[str, Any], list[str]]:
     base = {"src/value.py": f"VALUE = {index}\n", "src/helper.py": "def normalize(value):\n    return str(value).strip()\n", "tests/test_value.py": "from src.value import VALUE\nassert VALUE >= 1\n", "TARGET.md": f"Expected marker: {expected}\n"}
-    result_check = {"path": "result.txt", "equals": expected}
+    result_check: dict[str, Any] = {"path": "result.txt", "equals": expected}
+    verifier: dict[str, Any]
     if category == "locate_explain":
         base["src/target.py"] = f"TARGET_SYMBOL_{index} = {index}\n"; prompt = f"Locate TARGET_SYMBOL_{index}, then write exactly {expected} to result.txt and finish."; verifier = {"files": [result_check]}; writable = ["result.txt"]
     elif category == "single_file":
