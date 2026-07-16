@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass, field
 import json
 from pathlib import Path
 from typing import Any
+import builtins
 import uuid
 
 from .stores import atomic_json
@@ -35,7 +36,7 @@ class CaseStore:
     def load(self, case_id: str) -> CaseCard:
         payload = json.loads((self.root / f"{case_id}.json").read_text(encoding="utf-8")); return CaseCard(**payload)
 
-    def list(self) -> list[CaseCard]:
+    def list(self) -> builtins.list[CaseCard]:
         return [self.load(p.stem) for p in sorted(self.root.glob("*.json"))]
 
     def promote(self, card: CaseCard, replay: dict[str, Any]) -> CaseCard:
@@ -49,7 +50,7 @@ class CaseStore:
     def reject(self, case_id: str) -> CaseCard:
         card = self.load(case_id); card.verification_status = "rejected"; self.save(card); return card
 
-    def search(self, category: str, tool_pattern: list[str] | None = None, top_k: int = 3, code_version: str | None = None) -> list[CaseCard]:
+    def search(self, category: str, tool_pattern: builtins.list[str] | None = None, top_k: int = 3, code_version: str | None = None) -> builtins.list[CaseCard]:
         result = []
         for card in self.list():
             allowed = card.applicability.get("allowed_categories", [])

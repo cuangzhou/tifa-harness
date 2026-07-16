@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-from pathlib import Path
 import re
 from typing import Any, Callable
 
-from .execution import ExecutionBackend, ExecutionPolicy, ExecutionRequest, LocalExecutionBackend, ResourceLimits, command_argv, result_text
+from .execution import ExecutionBackend, ExecutionPolicy, ExecutionRequest, ExecutionResult, LocalExecutionBackend, ResourceLimits, command_argv, result_text
 from .workspace import WorkspaceContext
 
 READ_ONLY = {"list_files", "read_file", "search", "delegate"}
@@ -40,7 +38,7 @@ class ToolRegistry:
         self.workspace, self.approval_policy, self.approver = workspace, approval_policy, approver
         self.delegate_fn, self.depth, self.max_depth = delegate, depth, max_depth
         self.execution_backend = execution_backend or LocalExecutionBackend(); self.resource_limits = resource_limits or ResourceLimits(); self.execution_policy = execution_policy or ExecutionPolicy()
-        self.last_execution = None
+        self.last_execution: ExecutionResult | None = None
 
     @property
     def names(self) -> list[str]:

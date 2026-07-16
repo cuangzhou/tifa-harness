@@ -9,7 +9,11 @@ from typing import Any
 
 from .benchmark import run_replay_benchmark
 from .cases import CaseCard, CaseStore
+from .doctor import doctor
+from .execution import DockerExecutionBackend, ExecutionPolicy, LocalExecutionBackend, ResourceLimits
 from .models import FakeModelClient
+from .live_eval import run_live_eval
+from .performance import benchmark_workspace
 from .providers import create_model_client
 from .replay import ReplayDiffReport, ReplayResult, ReplayRunner, ReplaySpec
 from .runtime import Tifa, build_agent
@@ -34,6 +38,9 @@ def command_parser() -> argparse.ArgumentParser:
     listing = csub.add_parser("list"); listing.add_argument("--cwd", default=".")
     reject = csub.add_parser("reject"); reject.add_argument("case_id"); reject.add_argument("--cwd", default=".")
     benchmark = commands.add_parser("benchmark"); bsub = benchmark.add_subparsers(dest="benchmark_command"); breplay = bsub.add_parser("replay"); breplay.add_argument("--mode", choices=["smoke", "full"], default="smoke"); breplay.add_argument("--output", type=Path)
+    bworkspace = bsub.add_parser("workspace"); bworkspace.add_argument("--output", type=Path); bworkspace.add_argument("--repeats", type=int, default=3)
+    doctor_command = commands.add_parser("doctor"); doctor_command.add_argument("--cwd", default="."); doctor_command.add_argument("--model", default="qwen2.5-coder:3b"); doctor_command.add_argument("--ollama-url", default="http://127.0.0.1:11434")
+    evaluation = commands.add_parser("eval"); esub = evaluation.add_subparsers(dest="eval_command"); live = esub.add_parser("live"); live.add_argument("--provider", choices=["ollama"], default="ollama"); live.add_argument("--model", default="qwen2.5-coder:3b"); live.add_argument("--repetitions", type=int, default=1); live.add_argument("--output", type=Path, required=True); live.add_argument("--code-version")
     return root
 
 
@@ -41,12 +48,13 @@ def agent_parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(prog="tifa")
     root.add_argument("prompt", nargs="?"); root.add_argument("--cwd", default="."); root.add_argument("--provider", choices=["fake", "openai", "anthropic", "ollama"], default="fake")
     root.add_argument("--model"); root.add_argument("--max-steps", type=int, default=8); root.add_argument("--approval", choices=["never", "on-risk", "always"], default="on-risk"); root.add_argument("--resume")
+    root.add_argument("--execution-backend", choices=["docker", "local"], default="local"); root.add_argument("--network-policy", choices=["deny", "allow"], default="deny"); root.add_argument("--cpu-limit", type=float, default=1.0); root.add_argument("--memory-limit", type=int, default=512); root.add_argument("--timeout", type=int, default=30)
     return root
 
 
 def main(argv: list[str] | None = None) -> int:
     raw = list(sys.argv[1:] if argv is None else argv)
-    is_command = bool(raw and raw[0] in {"replay", "replay-diff", "resume-run", "cases", "benchmark"})
+    is_command = bool(raw and raw[0] in {"replay", "replay-diff", "resume-run", "cases", "benchmark", "doctor", "eval"})
     args = (command_parser() if is_command else agent_parser()).parse_args(raw)
     if getattr(args, "command", None) == "replay":
         spec = ReplaySpec(**json.loads(args.spec.read_text(encoding="utf-8"))) if args.spec else None
@@ -73,10 +81,17 @@ def main(argv: list[str] | None = None) -> int:
         else: command_parser().error("cases requires a command")
         print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0
     if getattr(args, "command", None) == "benchmark":
-        if args.benchmark_command != "replay": command_parser().error("benchmark requires replay")
-        print(json.dumps(run_replay_benchmark(args.mode, args.output), ensure_ascii=False, indent=2)); return 0
+        payload = run_replay_benchmark(args.mode, args.output) if args.benchmark_command == "replay" else benchmark_workspace(args.output, repeats=args.repeats) if args.benchmark_command == "workspace" else None
+        if payload is None: command_parser().error("benchmark requires replay or workspace")
+        print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0 if payload.get("status", "passed") == "passed" else 1
+    if getattr(args, "command", None) == "doctor":
+        payload = doctor(args.cwd, args.model, args.ollama_url); print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0 if payload["status"] == "healthy" else 1
+    if getattr(args, "command", None) == "eval":
+        if args.eval_command != "live": command_parser().error("eval requires live")
+        payload = run_live_eval(args.output, args.provider, args.model, args.repetitions, args.code_version); print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0
     client = FakeModelClient() if args.provider == "fake" else create_model_client(args.provider, args.model)
-    kwargs = {"max_steps": args.max_steps, "approval_policy": args.approval, "approver": _approver}
+    backend = DockerExecutionBackend() if args.execution_backend == "docker" else LocalExecutionBackend()
+    kwargs = {"max_steps": args.max_steps, "approval_policy": args.approval, "approver": _approver, "execution_backend": backend, "execution_policy": ExecutionPolicy(network=args.network_policy), "resource_limits": ResourceLimits(cpus=args.cpu_limit, memory_mb=args.memory_limit, timeout_seconds=args.timeout)}
     agent = Tifa.from_session(args.cwd, client, args.resume, **kwargs) if args.resume else build_agent(args.cwd, client, **kwargs)
     if args.prompt:
         print(json.dumps(asdict(agent.ask(args.prompt)), ensure_ascii=False, indent=2)); return 0

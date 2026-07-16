@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import time
-from typing import Any, Callable
+from typing import Any
 
 
 def digest(value: Any) -> str:

@@ -38,6 +38,23 @@ def _anthropic_messages(messages: list[dict[str, Any]] | None, prompt: str) -> l
     return result
 
 
+def _ollama_messages(messages: list[dict[str, Any]] | None, prompt: str) -> list[dict[str, Any]]:
+    if not messages: return [{"role": "user", "content": prompt}]
+    result = []; call_names: dict[str, str] = {}
+    for message in messages:
+        if message["role"] == "assistant" and message.get("tool_calls"):
+            calls = []
+            for index, call in enumerate(message["tool_calls"]):
+                call_names[call["id"]] = call["name"]
+                calls.append({"type": "function", "function": {"index": index, "name": call["name"], "arguments": call["arguments"]}})
+            result.append({"role": "assistant", "content": message.get("content", ""), "tool_calls": calls})
+        elif message["role"] == "tool":
+            result.append({"role": "tool", "tool_name": call_names.get(message["tool_call_id"], "unknown"), "content": message["content"]})
+        else:
+            result.append({"role": message["role"], "content": message.get("content", "")})
+    return result
+
+
 class ProviderError(RuntimeError):
     def __init__(self, category: str, message: str) -> None:
         self.category = category
@@ -119,7 +136,7 @@ class OpenAICompatibleModelClient(_HTTPModelClient):
 
     def complete(self, prompt: str, tools: list[dict[str, Any]], cache_key: str | None = None, messages: list[dict[str, Any]] | None = None) -> ModelResponse:
         headers = {"authorization": f"Bearer {self.api_key}"} if self.api_key else {}
-        data = self._post("/chat/completions", {"model": self.model, "messages": _openai_messages(messages, prompt), "tools": tools})
+        data = self._post("/chat/completions", {"model": self.model, "messages": _openai_messages(messages, prompt), "tools": tools}, headers)
         try:
             message = data["choices"][0]["message"]
             calls = [ToolCall(str(c["id"]), c["function"]["name"], json.loads(c["function"].get("arguments") or "{}")) for c in message.get("tool_calls", [])]
@@ -148,7 +165,7 @@ class OllamaModelClient(_HTTPModelClient):
     provider = "ollama"
 
     def complete(self, prompt: str, tools: list[dict[str, Any]], cache_key: str | None = None, messages: list[dict[str, Any]] | None = None) -> ModelResponse:
-        data = self._post("/api/chat", {"model": self.model, "messages": _openai_messages(messages, prompt), "stream": False, "tools": tools})
+        data = self._post("/api/chat", {"model": self.model, "messages": _ollama_messages(messages, prompt), "stream": False, "options": {"temperature": 0}, "tools": tools})
         try:
             message = data["message"]
             calls = [ToolCall(str(c.get("id") or f"ollama-{i}"), c["function"]["name"], c["function"].get("arguments", {})) for i, c in enumerate(message.get("tool_calls", []), 1)]
@@ -159,9 +176,9 @@ class OllamaModelClient(_HTTPModelClient):
 
 def create_model_client(provider: str, model: str | None = None):
     if provider == "openai":
-        return OpenAICompatibleModelClient(model or os.getenv("OPENAI_MODEL", "gpt-4.1-mini"), os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"), os.getenv("OPENAI_API_KEY"))
+        return OpenAICompatibleModelClient(model or os.getenv("OPENAI_MODEL") or "gpt-4.1-mini", os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1", os.getenv("OPENAI_API_KEY"))
     if provider == "anthropic":
-        return AnthropicCompatibleModelClient(model or os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"), os.getenv("ANTHROPIC_BASE_URL", "https://api.anthropic.com/v1"), os.getenv("ANTHROPIC_API_KEY"))
+        return AnthropicCompatibleModelClient(model or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-20250514", os.getenv("ANTHROPIC_BASE_URL") or "https://api.anthropic.com/v1", os.getenv("ANTHROPIC_API_KEY"))
     if provider == "ollama":
-        return OllamaModelClient(model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder"), os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
+        return OllamaModelClient(model or os.getenv("OLLAMA_MODEL") or "qwen2.5-coder:3b", os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434")
     raise ValueError(f"unsupported provider: {provider}")

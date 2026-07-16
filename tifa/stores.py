@@ -70,3 +70,8 @@ class RunStore:
         with (self.run_dir / "trace.jsonl").open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(event, ensure_ascii=False) + "\n")
         return event
+
+    def append_log(self, level: str, event: str, fields: dict[str, Any] | None = None) -> None:
+        record = {"timestamp": now(), "level": level, "event": event, "run_id": self.run_id, **redact(fields or {})}
+        with (self.run_dir / "log.jsonl").open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, ensure_ascii=False) + "\n")

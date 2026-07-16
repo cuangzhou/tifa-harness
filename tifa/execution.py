@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
-import json
+from dataclasses import dataclass, field
 import os
 from pathlib import Path
 import shlex
@@ -88,8 +87,10 @@ class DockerExecutionBackend:
         except Exception: return None
     def execute(self, request: ExecutionRequest) -> ExecutionResult:
         if request.policy.network not in {"deny", "allow"}: raise ValueError("invalid network policy")
-        name = f"tifa-{uuid.uuid4().hex[:12]}"; mount = f"{request.workspace.resolve()}:/workspace:{'rw' if request.policy.writable_workspace else 'ro'}"
-        command = ["docker", "run", "--rm", "--name", name, "--read-only", "--network", "none" if request.policy.network == "deny" else "bridge", "--cpus", str(request.limits.cpus), "--memory", f"{request.limits.memory_mb}m", "--pids-limit", str(request.limits.pids), "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--user", "65532:65532", "--mount", f"type=bind,source={request.workspace.resolve()},target=/workspace", "--workdir", "/workspace", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m"]
+        name = f"tifa-{uuid.uuid4().hex[:12]}"
+        mount = f"type=bind,source={request.workspace.resolve()},target=/workspace"
+        if not request.policy.writable_workspace: mount += ",readonly"
+        command = ["docker", "run", "--rm", "--name", name, "--read-only", "--network", "none" if request.policy.network == "deny" else "bridge", "--cpus", str(request.limits.cpus), "--memory", f"{request.limits.memory_mb}m", "--pids-limit", str(request.limits.pids), "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--user", "65532:65532", "--mount", mount, "--workdir", "/workspace", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m"]
         for key, value in request.env.items(): command += ["--env", f"{key}={value}"]
         command += [self.image, *request.argv]; started = time.perf_counter(); timed_out = False
         process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

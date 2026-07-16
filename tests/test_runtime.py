@@ -11,6 +11,7 @@ from tifa.runtime import ResumeMismatch, parse
 def test_public_api_and_parser():
     assert parse('<final>done</final>') == ("final", "done")
     assert parse('<tool>{"name":"read_file","arguments":{"path":"a"}}</tool>')[0] == "tool"
+    assert parse('```json\n{"name":"write_file","arguments":{"path":"a.txt","content":"ok"}}\n```')[0] == "tool"
     assert parse("bad")[0] == "retry"
 
 

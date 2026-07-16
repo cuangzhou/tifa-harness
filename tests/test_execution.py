@@ -1,6 +1,4 @@
 import os
-from pathlib import Path
-
 import pytest
 
 from tifa import DockerExecutionBackend, ExecutionPolicy, ExecutionRequest, LocalExecutionBackend, ResourceLimits
