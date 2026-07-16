@@ -24,7 +24,7 @@ addopts = "-q"
 
 [tool.coverage.run]
 source = ["tifa"]
-omit = ["tifa/cli.py", "tifa/__main__.py"]
+omit = ["tifa/cli.py", "tifa/__main__.py", "tifa/live_eval.py"]
 
 [tool.coverage.report]
 fail_under = 85

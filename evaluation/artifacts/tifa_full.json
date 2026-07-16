@@ -4,7 +4,7 @@
   "dataset_version": "tifa-replay-fixtures-v3",
   "result_kind": "measured",
   "implementation_status": "integrated",
-  "git_commit": "cc29ed07e23f41adeb88ddd27faf22d5ee6eed04",
+  "git_commit": "665599586ada57284c3082bd31ab4b007710db13",
   "command": "tifa benchmark replay --mode full",
   "case_count": 24,
   "repetitions": 3,
@@ -15,9 +15,9 @@
     "artifact_digest_match_rate": 1.0,
     "report_reconstruction_rate": 1.0,
     "checkpoint_digest_match_rate": 1.0,
-    "mean_replay_duration_ms": 0.4694642360681832,
-    "duration_variance": 0.00329978340524853,
-    "p95_replay_duration_ms": 0.5829000001540408,
+    "mean_replay_duration_ms": 0.48975659722651066,
+    "duration_variance": 0.003996988087100168,
+    "p95_replay_duration_ms": 0.6096999986766605,
     "failure_type_distribution": {
       "none": 240,
       "interrupted_partial_state": 12,
@@ -33,32 +33,32 @@
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.44274166667593007,
-        "duration_variance": 0.00132365325883421
+        "mean_duration_ms": 0.4785013889987668,
+        "duration_variance": 0.003286942090739461
       },
       "replay-only": {
         "runs": 72,
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.47161805554828284,
-        "duration_variance": 0.00314252370218244
+        "mean_duration_ms": 0.4887833332910911,
+        "duration_variance": 0.004184600010022522
       },
       "verified-case-assisted": {
         "runs": 72,
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.49371527767208234,
-        "duration_variance": 0.004502573238799019
+        "mean_duration_ms": 0.49228611116329074,
+        "duration_variance": 0.004334510918585399
       },
       "irrelevant-case-injected": {
         "runs": 72,
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.4697819443764375,
-        "duration_variance": 0.0029234348104586303
+        "mean_duration_ms": 0.49945555545289405,
+        "duration_variance": 0.003953804142681934
       }
     },
     "case_assistance_delta": 0.0,
@@ -76,5 +76,5 @@
     "python": "3.12.5",
     "platform": "Windows-11-10.0.26200-SP0"
   },
-  "generated_at": "2026-07-16T00:34:21.321648+00:00"
+  "generated_at": "2026-07-16T01:25:54.966594+00:00"
 }

@@ -1,0 +1,52 @@
+{
+  "schema_version": "tifa-workspace-benchmark.v1",
+  "code_version": "6655995",
+  "status": "passed",
+  "sizes": [
+    {
+      "file_count": 1000,
+      "cold_start_ms": 6837.3186999997415,
+      "incremental_ms": [
+        232.0651000009093,
+        233.01840000021912,
+        236.22939999950177
+      ],
+      "incremental_p95_ms": 236.22939999950177,
+      "search_p95_ms": 0.11559999984456226,
+      "context_build_p95_ms": 0.011299998732283711,
+      "process_rss_mb": 38.41015625
+    },
+    {
+      "file_count": 5000,
+      "cold_start_ms": 29482.826299999942,
+      "incremental_ms": [
+        557.2558999992907,
+        564.0070999997988,
+        555.8356000001368
+      ],
+      "incremental_p95_ms": 564.0070999997988,
+      "search_p95_ms": 0.32980000105453655,
+      "context_build_p95_ms": 0.010199999451288022,
+      "process_rss_mb": 40.34375
+    },
+    {
+      "file_count": 10000,
+      "cold_start_ms": 62797.40370000036,
+      "incremental_ms": [
+        1012.5570999989577,
+        974.0169999986392,
+        967.2573000007105
+      ],
+      "incremental_p95_ms": 1012.5570999989577,
+      "search_p95_ms": 0.7116999986465089,
+      "context_build_p95_ms": 0.0106999996205559,
+      "process_rss_mb": 45.17578125
+    }
+  ],
+  "thresholds": {
+    "incremental_fingerprint_p95_ms": 2000,
+    "search_p95_ms": 3000,
+    "context_build_p95_ms": 500
+  },
+  "repeats": 3
+}
