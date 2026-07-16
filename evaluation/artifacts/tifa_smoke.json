@@ -1,10 +1,10 @@
 {
   "project": "Tifa",
   "benchmark": "replay-smoke",
-  "dataset_version": "tifa-replay-fixtures-v2",
+  "dataset_version": "tifa-replay-fixtures-v3",
   "result_kind": "measured",
   "implementation_status": "integrated",
-  "git_commit": "working-tree-uncommitted",
+  "git_commit": "cc29ed07e23f41adeb88ddd27faf22d5ee6eed04",
   "command": "tifa benchmark replay --mode smoke",
   "case_count": 24,
   "repetitions": 1,
@@ -15,13 +15,14 @@
     "artifact_digest_match_rate": 1.0,
     "report_reconstruction_rate": 1.0,
     "checkpoint_digest_match_rate": 1.0,
-    "mean_replay_duration_ms": 0.5497958331943664,
-    "duration_variance": 0.012164211224598402,
-    "p95_replay_duration_ms": 0.6708000000799075,
+    "mean_replay_duration_ms": 0.4552208332218773,
+    "duration_variance": 0.0012348008203198581,
+    "p95_replay_duration_ms": 0.5189000003156252,
     "failure_type_distribution": {
-      "none": 22,
+      "none": 20,
       "interrupted_partial_state": 1,
-      "policy_denied": 1
+      "policy_denied": 1,
+      "tool_failure": 2
     },
     "planned_fixture_count": 24,
     "executed_fixture_count": 24,
@@ -29,11 +30,11 @@
     "experimental_groups": {
       "baseline": {
         "runs": 24,
-        "verifier_pass_rate": 1.0,
+        "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.5497958331943664,
-        "duration_variance": 0.012164211224598402
+        "mean_duration_ms": 0.4552208332218773,
+        "duration_variance": 0.0012348008203198581
       }
     },
     "case_assistance_delta": 0.0,
@@ -42,15 +43,14 @@
     "counterfactual_replay": "MEASURED_BY_CONSTRAINT_TESTS"
   },
   "limitations": [
-    "24 个 fixture 均为确定性工程合同，不代表真实模型任务成功率",
-    "新增 12 个 fixture 按规划矩阵物化合同元数据，但沿用已验证的确定性事件模板",
-    "四组实验在离线回放层测量；案例辅助增益为确定性基线，不外推到真实模型",
-    "Forked/Counterfactual 的安全性由隔离与约束测试测量",
+    "24 个 fixture 均为独立确定性工程合同，不代表真实模型任务成功率",
+    "四组实验真实改变 context manifest；案例辅助增益仍只适用于离线确定性基线",
+    "Forked/Counterfactual 的 Runtime 执行能力由隔离、override 与 continuation 测试测量",
     "live provider smoke test 默认跳过"
   ],
   "environment": {
     "python": "3.12.5",
     "platform": "Windows-11-10.0.26200-SP0"
   },
-  "generated_at": "2026-07-16T00:19:41.005924+00:00"
+  "generated_at": "2026-07-16T00:34:18.839049+00:00"
 }

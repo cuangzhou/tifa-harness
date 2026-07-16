@@ -1,10 +1,10 @@
 {
   "project": "Tifa",
   "benchmark": "replay-full",
-  "dataset_version": "tifa-replay-fixtures-v2",
+  "dataset_version": "tifa-replay-fixtures-v3",
   "result_kind": "measured",
   "implementation_status": "integrated",
-  "git_commit": "working-tree-uncommitted",
+  "git_commit": "cc29ed07e23f41adeb88ddd27faf22d5ee6eed04",
   "command": "tifa benchmark replay --mode full",
   "case_count": 24,
   "repetitions": 3,
@@ -15,13 +15,14 @@
     "artifact_digest_match_rate": 1.0,
     "report_reconstruction_rate": 1.0,
     "checkpoint_digest_match_rate": 1.0,
-    "mean_replay_duration_ms": 0.41687916658222296,
-    "duration_variance": 0.00354453476927473,
-    "p95_replay_duration_ms": 0.5123000009916723,
+    "mean_replay_duration_ms": 0.4694642360681832,
+    "duration_variance": 0.00329978340524853,
+    "p95_replay_duration_ms": 0.5829000001540408,
     "failure_type_distribution": {
-      "none": 264,
+      "none": 240,
       "interrupted_partial_state": 12,
-      "policy_denied": 12
+      "policy_denied": 12,
+      "tool_failure": 24
     },
     "planned_fixture_count": 24,
     "executed_fixture_count": 24,
@@ -29,35 +30,35 @@
     "experimental_groups": {
       "baseline": {
         "runs": 72,
-        "verifier_pass_rate": 1.0,
+        "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.4145847221176761,
-        "duration_variance": 0.0064936395994400035
+        "mean_duration_ms": 0.44274166667593007,
+        "duration_variance": 0.00132365325883421
       },
       "replay-only": {
         "runs": 72,
-        "verifier_pass_rate": 1.0,
+        "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.41958194426822754,
-        "duration_variance": 0.0029190884279516878
+        "mean_duration_ms": 0.47161805554828284,
+        "duration_variance": 0.00314252370218244
       },
       "verified-case-assisted": {
         "runs": 72,
-        "verifier_pass_rate": 1.0,
+        "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.42022777782019854,
-        "duration_variance": 0.0030909511846718184
+        "mean_duration_ms": 0.49371527767208234,
+        "duration_variance": 0.004502573238799019
       },
       "irrelevant-case-injected": {
         "runs": 72,
-        "verifier_pass_rate": 1.0,
+        "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.41312222212278965,
-        "duration_variance": 0.0016365625535201926
+        "mean_duration_ms": 0.4697819443764375,
+        "duration_variance": 0.0029234348104586303
       }
     },
     "case_assistance_delta": 0.0,
@@ -66,15 +67,14 @@
     "counterfactual_replay": "MEASURED_BY_CONSTRAINT_TESTS"
   },
   "limitations": [
-    "24 个 fixture 均为确定性工程合同，不代表真实模型任务成功率",
-    "新增 12 个 fixture 按规划矩阵物化合同元数据，但沿用已验证的确定性事件模板",
-    "四组实验在离线回放层测量；案例辅助增益为确定性基线，不外推到真实模型",
-    "Forked/Counterfactual 的安全性由隔离与约束测试测量",
+    "24 个 fixture 均为独立确定性工程合同，不代表真实模型任务成功率",
+    "四组实验真实改变 context manifest；案例辅助增益仍只适用于离线确定性基线",
+    "Forked/Counterfactual 的 Runtime 执行能力由隔离、override 与 continuation 测试测量",
     "live provider smoke test 默认跳过"
   ],
   "environment": {
     "python": "3.12.5",
     "platform": "Windows-11-10.0.26200-SP0"
   },
-  "generated_at": "2026-07-16T00:19:42.028480+00:00"
+  "generated_at": "2026-07-16T00:34:21.321648+00:00"
 }
