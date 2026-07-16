@@ -10,7 +10,7 @@ python -m tifa "Describe this repository"
 python -m pytest
 ```
 
-The default `FakeModelClient` is deterministic and requires no credentials. Runs are written beneath `.tifa/` and include versioned session, trace, checkpoint, report, and evidence artifacts.
+The deterministic default client requires no credentials. Versioned session, trace, checkpoint, report, metrics, logs, and evidence artifacts are written under `.tifa/`.
 
 ## Execution isolation
 
@@ -22,18 +22,18 @@ python -m tifa doctor --cwd .
 python -m tifa --execution-backend docker --network-policy deny "Run the tests"
 ```
 
-The local backend executes an argv vector with a filtered environment and process-tree termination. It always reports `isolation_level=local_degraded`; Tifa does not describe it as a security sandbox.
+The local backend executes argv with a filtered environment and process-tree termination. It always reports `isolation_level=local_degraded`; it is not described as a security sandbox.
 
 ## Providers and budgets
 
-OpenAI-compatible, Anthropic-compatible, and Ollama clients map structured tool calls and tool results. Recoverable timeout, HTTP 429, and 5xx failures use bounded exponential backoff; auth, schema, and invalid tool calls fail immediately. Runtime budgets cover model calls, input/output tokens, tool calls, elapsed time, and optional cost.
+OpenAI-compatible, Anthropic-compatible, and Ollama clients map structured tool calls and results. Recoverable timeout, HTTP 429, and 5xx failures use bounded exponential backoff; auth, schema, and invalid calls fail immediately. Runtime budgets cover model calls, tokens, tool calls, elapsed time, and optional cost.
 
 ```powershell
 python -m tifa --provider ollama --model qwen2.5-coder:3b "Inspect the tests"
-python -m tifa --provider openai --model gpt-4.1-mini "Inspect the tests"
+python -m tifa eval live --provider ollama --output evaluation/artifacts/measured-live/local.json
 ```
 
-Credentials and full raw provider responses are not persisted. A stable request ID and summarized usage are recorded for correlation.
+Credentials and full raw responses are not persisted. Stable request IDs and summarized usage support correlation.
 
 ## Resume, replay, cases, and benchmarks
 
@@ -46,10 +46,10 @@ python -m tifa benchmark workspace --output evaluation/artifacts/workspace-perfo
 python -m tifa cases search bugfix --top-k 3
 ```
 
-Offline replay never invokes a provider or real tools. Forked replay uses a temporary workspace copy and verifies that the source stays unchanged. Counterfactual replay permits one registered override; additional differences are marked `confounded`. The deterministic suite contains 24 independently defined fixtures. Live-model results are kept separate under `measured-live` and are only created by an actual run.
+Offline replay never invokes a provider or real tools. Forked replay uses a temporary workspace copy and verifies the source stays unchanged. Counterfactual replay permits one registered override; extra differences are `confounded`. The deterministic suite contains 24 independent fixtures. Live-model results are separate measured artifacts created only by an actual run.
 
 ## Current boundary
 
-Version 0.4.0 is a local CLI and Python SDK, not a remote multi-tenant service. Docker/Linux provides the strong command boundary; Windows local execution remains degraded. Live provider validation is opt-in and its results are never mixed with deterministic fixture metrics. Resource limits are container controls, not a claim of formal isolation or zero-day resistance.
+Version 0.4.0 is a local CLI and Python SDK, not a remote multi-tenant service. Docker/Linux provides the strong command boundary; Windows local execution remains degraded. Live provider measurements are never mixed with deterministic fixture metrics. Resource limits are container controls, not a claim of formal isolation.
 
 See [configuration](docs/configuration.md), [security policy](SECURITY.md), and [changelog](CHANGELOG.md).
