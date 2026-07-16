@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pico.local/schemas/replay-spec.v1.json",
+  "title": "Pico ReplaySpec v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_run_id", "mode", "workspace_policy", "overrides"],
+  "properties": {
+    "schema_version": {"const": "replay-spec.v1"},
+    "source_run_id": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["offline", "forked", "counterfactual"]},
+    "checkpoint_id": {"type": ["string", "null"]},
+    "workspace_policy": {"enum": ["read_only", "isolated_fixture", "snapshot_copy"]},
+    "overrides": {
+      "type": "object",
+      "maxProperties": 1,
+      "properties": {
+        "memory_enabled": {"type": "boolean"},
+        "context_policy": {"type": "string"},
+        "provider": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "expected_source_digest": {"type": ["string", "null"]},
+    "requested_by": {"type": ["string", "null"]}
+  },
+  "allOf": [
+    {"if": {"properties": {"mode": {"const": "counterfactual"}}}, "then": {"properties": {"overrides": {"minProperties": 1, "maxProperties": 1}}}},
+    {"if": {"properties": {"mode": {"const": "offline"}}}, "then": {"properties": {"workspace_policy": {"const": "read_only"}}}}
+  ]
+}

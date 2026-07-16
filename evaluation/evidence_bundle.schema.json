@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "run_id", "task_contract", "repo_snapshot", "events", "artifacts", "verifier", "metrics"],
   "properties": {
-    "schema_version": {"const": "evidence-bundle.v1"},
+    "schema_version": {"enum": ["evidence-bundle.v1", "evidence-bundle.v2"]},
     "run_id": {"type": "string", "minLength": 1},
     "parent_replay_id": {"type": ["string", "null"]},
     "created_at": {"type": "string", "format": "date-time"},
@@ -46,8 +46,8 @@
     "events": {"type": "array", "items": {"type": "object", "required": ["sequence", "type", "timestamp"]}},
     "checkpoints": {"type": "array", "items": {"type": "object", "required": ["checkpoint_id", "event_sequence", "state_digest"]}},
     "artifacts": {"type": "array", "items": {"type": "object", "required": ["path", "digest", "status"]}},
-    "verifier": {"type": "object", "required": ["passed"], "properties": {"passed": {"type": "boolean"}, "failure_category": {"type": ["string", "null"]}}, "additionalProperties": true},
-    "metrics": {"type": "object", "additionalProperties": {"type": ["number", "integer", "string", "boolean", "null"]}},
+    "verifier": {"type": "object", "required": ["passed"], "properties": {"passed": {"type": ["boolean", "null"]}, "status": {"type": "string"}, "failure_category": {"type": ["string", "null"]}}, "additionalProperties": true},
+    "metrics": {"type": "object", "additionalProperties": true},
     "provenance": {"type": "object", "properties": {"provider": {"type": "string"}, "model": {"type": "string"}, "code_version": {"type": "string"}}, "additionalProperties": true}
   }
 }

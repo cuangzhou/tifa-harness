@@ -20,9 +20,9 @@ def test_fake_loop_writes_versioned_artifacts(tmp_path: Path):
     result = agent.ask("finish")
     assert result.answer == "done"
     run = Path(result.run_dir)
-    for name in ("task_state.json", "trace.jsonl", "checkpoint.json", "report.json", "evidence_bundle.json"):
+    for name in ("task_state.json", "trace.jsonl", "checkpoints", "report.json", "evidence_bundle.json"):
         assert (run / name).exists()
-    assert json.loads((run / "task_state.json").read_text())["schema_version"] == "tifa-task-state.v1"
+    assert json.loads((run / "task_state.json").read_text())["schema_version"] == "tifa-task-state.v2"
     replay = ReplayRunner().replay(run / "evidence_bundle.json")
     assert isinstance(replay, ReplayDiffReport) and replay.replay_consistent
 
@@ -34,7 +34,7 @@ def test_tool_loop_and_duplicate_guard(tmp_path: Path):
     result = agent.ask("read")
     assert result.tool_steps == 2
     trace = (Path(result.run_dir) / "trace.jsonl").read_text(encoding="utf-8")
-    assert "duplicate tool call blocked" in trace
+    assert "reused committed tool result" in trace
 
 
 def test_retry_limit(tmp_path: Path):

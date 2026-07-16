@@ -8,9 +8,9 @@ from tifa.replay import ReplayRunner
 from tifa.result_contract import export_measured_metrics, make_result, write_result
 
 
-def test_all_12_historical_fixtures_replay():
+def test_all_24_fixtures_replay():
     fixtures = sorted((evaluation_root() / "fixtures").glob("*.json"))
-    assert len(fixtures) == 12
+    assert len(fixtures) == 24
     assert all(ReplayRunner().replay(path).replay_consistent for path in fixtures)
 
 
@@ -24,9 +24,10 @@ def test_tamper_and_unknown_schema(tmp_path: Path):
         ReplayRunner().replay(target)
 
 
-def test_future_modes_are_explicitly_not_implemented():
+def test_forked_replay_requires_workspace():
     source = evaluation_root() / "fixtures" / "doc_01.json"
-    assert ReplayRunner().replay(source, "forked")["status"] == "NOT_IMPLEMENTED"
+    with pytest.raises(ValueError, match="workspace"):
+        ReplayRunner().replay(source, "forked")
 
 
 def test_placeholder_export_refused(tmp_path: Path):
@@ -39,4 +40,4 @@ def test_placeholder_export_refused(tmp_path: Path):
 def test_smoke_reports_planned_vs_executed(tmp_path: Path):
     result = run_replay_benchmark("smoke", tmp_path / "result.json")
     assert result["metrics"]["planned_fixture_count"] == 24
-    assert result["metrics"]["executed_fixture_count"] == 12
+    assert result["metrics"]["executed_fixture_count"] == 24
