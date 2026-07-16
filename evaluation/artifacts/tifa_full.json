@@ -4,7 +4,7 @@
   "dataset_version": "tifa-replay-fixtures-v3",
   "result_kind": "measured",
   "implementation_status": "integrated",
-  "git_commit": "665599586ada57284c3082bd31ab4b007710db13",
+  "git_commit": "9b1b4a06f2fd2d005808a20f39c5fcdfb945e0ee",
   "command": "tifa benchmark replay --mode full",
   "case_count": 24,
   "repetitions": 3,
@@ -15,9 +15,9 @@
     "artifact_digest_match_rate": 1.0,
     "report_reconstruction_rate": 1.0,
     "checkpoint_digest_match_rate": 1.0,
-    "mean_replay_duration_ms": 0.48975659722651066,
-    "duration_variance": 0.003996988087100168,
-    "p95_replay_duration_ms": 0.6096999986766605,
+    "mean_replay_duration_ms": 0.5658701389216326,
+    "duration_variance": 0.014209882582110046,
+    "p95_replay_duration_ms": 0.7767999995849095,
     "failure_type_distribution": {
       "none": 240,
       "interrupted_partial_state": 12,
@@ -33,32 +33,32 @@
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.4785013889987668,
-        "duration_variance": 0.003286942090739461
+        "mean_duration_ms": 0.5394319448189182,
+        "duration_variance": 0.009562500473682645
       },
       "replay-only": {
         "runs": 72,
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.4887833332910911,
-        "duration_variance": 0.004184600010022522
+        "mean_duration_ms": 0.5344138885953321,
+        "duration_variance": 0.00994241259046828
       },
       "verified-case-assisted": {
         "runs": 72,
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.49228611116329074,
-        "duration_variance": 0.004334510918585399
+        "mean_duration_ms": 0.6082083333341062,
+        "duration_variance": 0.015246066608432496
       },
       "irrelevant-case-injected": {
         "runs": 72,
         "verifier_pass_rate": 0.8333333333333334,
         "replay_consistency": 1.0,
         "duplicate_side_effect_rate": 0.0,
-        "mean_duration_ms": 0.49945555545289405,
-        "duration_variance": 0.003953804142681934
+        "mean_duration_ms": 0.581426388938174,
+        "duration_variance": 0.018365557243167532
       }
     },
     "case_assistance_delta": 0.0,
@@ -76,5 +76,5 @@
     "python": "3.12.5",
     "platform": "Windows-11-10.0.26200-SP0"
   },
-  "generated_at": "2026-07-16T01:25:54.966594+00:00"
+  "generated_at": "2026-07-16T03:21:20.526303+00:00"
 }

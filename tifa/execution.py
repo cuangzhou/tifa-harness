@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 import json
 import os
 from pathlib import Path
@@ -17,6 +17,8 @@ class ResourceLimits:
     memory_mb: int = 512
     pids: int = 64
     timeout_seconds: int = 30
+    tmpfs_mb: int = 64
+    max_output_bytes: int = 30000
 
 
 @dataclass
@@ -24,6 +26,8 @@ class ExecutionPolicy:
     network: str = "deny"
     allow_shell: bool = False
     writable_workspace: bool = True
+    seccomp_profile: str | None = None
+    apparmor_profile: str | None = None
 
 
 @dataclass
@@ -47,6 +51,8 @@ class ExecutionResult:
     isolation_level: str
     image_digest: str | None = None
     security_events: list[str] = field(default_factory=list)
+    resource_limits: dict[str, int | float] = field(default_factory=dict)
+    network_policy: str = "unknown"
 
 
 class ExecutionBackend(Protocol):
@@ -77,12 +83,12 @@ class LocalExecutionBackend:
             else:
                 process.kill()
             stdout, stderr = process.communicate()
-        return ExecutionResult(process.returncode, stdout[:30000], stderr[:30000], (time.perf_counter() - started) * 1000, timed_out, False, self.name, "local_degraded", security_events=["network_not_isolated", "resource_limits_not_enforced"])
+        return ExecutionResult(process.returncode, stdout[:request.limits.max_output_bytes], stderr[:request.limits.max_output_bytes], (time.perf_counter() - started) * 1000, timed_out, False, self.name, "local_degraded", security_events=["network_not_isolated", "resource_limits_not_enforced"], resource_limits=asdict(request.limits), network_policy="not_enforced")
 
 
 class DockerExecutionBackend:
     name = "docker"
-    def __init__(self, image: str = "tifa-runner:0.4.0") -> None: self.image = image
+    def __init__(self, image: str = "tifa-runner:0.5.0") -> None: self.image = image
     def _digest(self) -> str | None:
         try:
             image_id = subprocess.check_output(["docker", "image", "inspect", self.image, "--format", "{{.Id}}"], text=True, stderr=subprocess.DEVNULL, timeout=5).strip()
@@ -95,7 +101,9 @@ class DockerExecutionBackend:
         name = f"tifa-{uuid.uuid4().hex[:12]}"
         mount = f"type=bind,source={request.workspace.resolve()},target=/workspace"
         if not request.policy.writable_workspace: mount += ",readonly"
-        command = ["docker", "run", "--rm", "--name", name, "--read-only", "--network", "none" if request.policy.network == "deny" else "bridge", "--cpus", str(request.limits.cpus), "--memory", f"{request.limits.memory_mb}m", "--pids-limit", str(request.limits.pids), "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--user", "65532:65532", "--mount", mount, "--workdir", "/workspace", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m"]
+        command = ["docker", "run", "--rm", "--name", name, "--read-only", "--network", "none" if request.policy.network == "deny" else "bridge", "--cpus", str(request.limits.cpus), "--memory", f"{request.limits.memory_mb}m", "--pids-limit", str(request.limits.pids), "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--user", "65532:65532", "--mount", mount, "--workdir", "/workspace", "--tmpfs", f"/tmp:rw,noexec,nosuid,size={request.limits.tmpfs_mb}m"]
+        if request.policy.seccomp_profile: command += ["--security-opt", f"seccomp={Path(request.policy.seccomp_profile).resolve()}"]
+        if request.policy.apparmor_profile: command += ["--security-opt", f"apparmor={request.policy.apparmor_profile}"]
         for key, value in request.env.items(): command += ["--env", f"{key}={value}"]
         command += [self.image, *request.argv]; started = time.perf_counter(); timed_out = False
         process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -104,7 +112,9 @@ class DockerExecutionBackend:
             timed_out = True; subprocess.run(["docker", "rm", "-f", name], capture_output=True, text=True); stdout, stderr = process.communicate()
         inspect = subprocess.run(["docker", "inspect", name, "--format", "{{json .State}}"], capture_output=True, text=True)
         oom = '"OOMKilled":true' in inspect.stdout
-        return ExecutionResult(process.returncode, stdout[:30000], stderr[:30000], (time.perf_counter() - started) * 1000, timed_out, oom, self.name, "container_strong", self._digest(), [] if request.policy.network == "deny" else ["network_enabled"])
+        events = [] if request.policy.network == "deny" else ["network_enabled"]
+        if not request.policy.seccomp_profile: events.append("docker_default_seccomp")
+        return ExecutionResult(process.returncode, stdout[:request.limits.max_output_bytes], stderr[:request.limits.max_output_bytes], (time.perf_counter() - started) * 1000, timed_out, oom, self.name, "container_strong", self._digest(), events, asdict(request.limits), request.policy.network)
 
 
 def result_text(result: ExecutionResult) -> str:

@@ -22,7 +22,7 @@ def test_fake_loop_writes_versioned_artifacts(tmp_path: Path):
     run = Path(result.run_dir)
     for name in ("task_state.json", "trace.jsonl", "checkpoints", "report.json", "evidence_bundle.json"):
         assert (run / name).exists()
-    assert json.loads((run / "task_state.json").read_text())["schema_version"] == "tifa-task-state.v2"
+    assert json.loads((run / "task_state.json").read_text())["schema_version"] == "tifa-task-state.v3"
     replay = ReplayRunner().replay(run / "evidence_bundle.json")
     assert isinstance(replay, ReplayDiffReport) and replay.replay_consistent
 

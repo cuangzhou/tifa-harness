@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import pytest
 
 from tifa import DockerExecutionBackend, ExecutionPolicy, ExecutionRequest, LocalExecutionBackend, ResourceLimits
@@ -27,3 +28,10 @@ def test_docker_backend_non_root_read_only_and_cleanup(tmp_path):
 def test_docker_timeout_removes_container(tmp_path):
     result = DockerExecutionBackend().execute(ExecutionRequest(["python", "-c", "import time; time.sleep(5)"], tmp_path, limits=ResourceLimits(timeout_seconds=1), policy=ExecutionPolicy()))
     assert result.timed_out
+
+
+@pytest.mark.skipif(os.getenv("TIFA_TEST_DOCKER") != "1", reason="set TIFA_TEST_DOCKER=1 for Docker integration")
+def test_docker_custom_seccomp_profile(tmp_path):
+    profile = Path(__file__).parents[1] / "docker" / "seccomp-tifa-v1.json"
+    result = DockerExecutionBackend().execute(ExecutionRequest(["python", "-c", "print('isolated')"], tmp_path, policy=ExecutionPolicy(seccomp_profile=str(profile))))
+    assert result.exit_code == 0 and "isolated" in result.stdout and "docker_default_seccomp" not in result.security_events

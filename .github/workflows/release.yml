@@ -1,0 +1,46 @@
+name: Release candidate
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ".[test,release]"
+      - run: python -m pytest --cov=tifa --cov-fail-under=85
+      - run: python -m pip_audit
+      - run: python -m build
+      - run: cyclonedx-py environment -o sbom.json
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tifa-0.5.0-release-candidate
+          path: |
+            dist/*
+            sbom.json
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t tifa-runner:0.5.0 -f docker/runner.Dockerfile docker
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: tifa-runner:0.5.0
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "1"

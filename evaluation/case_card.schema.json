@@ -20,6 +20,9 @@
     "verification_status": {"enum": ["candidate", "verified", "rejected", "superseded"]},
     "verification_run_id": {"type": ["string", "null"]},
     "applicability": {"type": "object", "required": ["allowed_categories", "excluded_conditions"], "additionalProperties": true},
-    "summary": {"type": "string", "maxLength": 1200}
+    "summary": {"type": "string", "maxLength": 1200},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": ["string", "null"], "format": "date-time"},
+    "supersedes": {"type": ["string", "null"]}
   }
 }

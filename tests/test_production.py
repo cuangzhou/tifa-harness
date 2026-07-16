@@ -15,7 +15,8 @@ def test_workspace_benchmark_small_is_reproducible(tmp_path):
 def test_doctor_reports_health_from_machine_checks(tmp_path, monkeypatch):
     def check_output(argv, **kwargs):
         if argv[:2] == ["docker", "version"]: return "29.5.3\n"
-        if argv[:2] == ["docker", "info"]: return json.dumps({"nvidia": {}, "runc": {}})
+        if argv[:2] == ["docker", "info"]:
+            return json.dumps(["name=seccomp", "name=rootless"]) if "SecurityOptions" in argv[-1] else json.dumps({"nvidia": {}, "runc": {}})
         raise AssertionError(argv)
 
     class URLResponse:
