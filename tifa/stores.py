@@ -33,7 +33,7 @@ def atomic_json(path: Path, value: Any) -> None:
 
 class SessionStore:
     def __init__(self, workspace: Path) -> None:
-        self.root, self.legacy = workspace / ".tifa" / "sessions", workspace / ".pico" / "sessions"
+        self.root = workspace / ".tifa" / "sessions"
 
     def save(self, session_id: str, state: dict[str, Any]) -> Path:
         path = self.root / f"{session_id}.json"
@@ -43,15 +43,11 @@ class SessionStore:
     def load(self, session_id: str) -> dict[str, Any]:
         if session_id == "latest":
             candidates = list(self.root.glob("*.json"))
-            if not candidates: candidates = list(self.legacy.glob("*.json"))
             if not candidates: raise FileNotFoundError("no session to resume")
             path = max(candidates, key=lambda p: p.stat().st_mtime)
         else:
             path = self.root / f"{session_id}.json"
-            if not path.exists(): path = self.legacy / f"{session_id}.json"
         payload = json.loads(path.read_text(encoding="utf-8"))
-        if path.parent == self.legacy:
-            return {**payload, "schema_version": "tifa-session.v1", "legacy_source": str(path)}
         if payload.get("schema_version") != "tifa-session.v1": raise ValueError("unsupported session schema")
         return payload
 

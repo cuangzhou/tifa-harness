@@ -63,6 +63,11 @@ class ReplayResult:
     workspace_digest_before: str | None = None
     workspace_digest_after: str | None = None
     isolated_workspace_cleaned: bool = True
+    replay_run_id: str | None = None
+    replay_bundle: dict[str, Any] | None = None
+    applied_overrides: dict[str, Any] = field(default_factory=dict)
+    same_task_contract: bool = True
+    same_snapshot: bool = True
 
 
 class ReplayRunner:
@@ -86,25 +91,48 @@ class ReplayRunner:
         consistent = state_ok and report_ok and artifact_ok and verifier_ok and checkpoint_ok
         return ReplayDiffReport(bundle["run_id"], len(events), state_ok, report_ok, artifact_ok, verifier_ok, consistent, verifier.get("failure_category"), (time.perf_counter() - started) * 1000, checkpoint_ok)
 
-    def replay(self, bundle_path: Path, mode: str = "offline", *, spec: ReplaySpec | None = None, workspace: Path | None = None, executor: Callable[[Path, ReplaySpec], None] | None = None) -> ReplayDiffReport | ReplayResult:
+    def replay(self, bundle_path: Path, mode: str = "offline", *, spec: ReplaySpec | None = None, workspace: Path | None = None, model_client: Any | None = None) -> ReplayDiffReport | ReplayResult:
         chosen = spec or ReplaySpec(json.loads(bundle_path.read_text(encoding="utf-8"))["run_id"], mode, "read_only" if mode == "offline" else "snapshot_copy")
         chosen.validate()
         base = self._offline(bundle_path)
         if chosen.mode == "offline": return base
         if workspace is None: raise ValueError("forked replay requires source workspace")
+        if model_client is None: raise ValueError("forked replay requires an explicit model client")
+        source_bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+        if chosen.source_run_id != source_bundle["run_id"]: raise ValueError("ReplaySpec source_run_id mismatch")
+        source_run = workspace / ".tifa" / "runs" / chosen.source_run_id
+        if not source_run.is_dir(): raise ValueError("source run is not available in workspace")
+        if chosen.checkpoint_id and not (source_run / "checkpoints" / f"{chosen.checkpoint_id}.json").is_file(): raise ValueError("checkpoint is not available")
         before = workspace_digest(workspace)
         if chosen.expected_source_digest and before != chosen.expected_source_digest: raise ValueError("source digest mismatch")
-        cleaned = False
+        cleaned = False; replay_bundle = None; replay_run_id = None
         with tempfile.TemporaryDirectory(prefix="tifa-replay-") as temp:
             target = Path(temp) / "workspace"
             shutil.copytree(workspace, target, ignore=shutil.ignore_patterns(".git", ".tifa", "__pycache__", ".pytest_cache"))
-            if executor: executor(target, chosen)
+            target_run = target / ".tifa" / "runs" / chosen.source_run_id
+            target_run.parent.mkdir(parents=True, exist_ok=True); shutil.copytree(source_run, target_run)
+            from .memory import LayeredMemory
+            from .runtime import Tifa
+            overrides = chosen.overrides
+            if "provider" in overrides and model_client.provider != overrides["provider"]: raise ValueError("provider override does not match supplied model client")
+            agent = Tifa.resume_run(target, model_client, chosen.source_run_id, chosen.checkpoint_id, allow_snapshot_copy=True, runtime_overrides={"provider", "model"} if "provider" in overrides else set(), approval_policy="never", context_policy=overrides.get("context_policy", "layered-budget-v2"), memory_enabled=overrides.get("memory_enabled", True))
+            if overrides.get("memory_enabled") is False: agent.memory = LayeredMemory()
+            contract = source_bundle["task_contract"]
+            result = agent.ask(contract["prompt"], verifier=contract.get("verifier"))
+            replay_run_id = result.run_id; replay_path = Path(result.run_dir) / "evidence_bundle.json"; replay_bundle = json.loads(replay_path.read_text(encoding="utf-8"))
             cleaned = True
         after = workspace_digest(workspace); base.source_unchanged = before == after
+        differences = self.diff(source_bundle, replay_bundle or {}); base.differences = differences
+        original_contract = {k: v for k, v in source_bundle["task_contract"].items() if k != "task_id"}
+        replay_contract = {k: v for k, v in (replay_bundle or {}).get("task_contract", {}).items() if k != "task_id"}
+        same_contract = original_contract == replay_contract
         if chosen.mode == "counterfactual":
-            authorized = set(chosen.overrides); observed = set(base.differences.get("overrides", authorized)); base.confounded = observed != authorized
+            unauthorized = not same_contract
+            allowed_provider_change = "provider" in chosen.overrides
+            provider_changed = source_bundle.get("provenance", {}).get("provider") != (replay_bundle or {}).get("provenance", {}).get("provider")
+            base.confounded = unauthorized or (provider_changed and not allowed_provider_change)
             base.replay_consistent = base.replay_consistent and not base.confounded
-        return ReplayResult(chosen, base, before, after, cleaned)
+        return ReplayResult(chosen, base, before, after, cleaned, replay_run_id, replay_bundle, dict(chosen.overrides), same_contract, before == after)
 
     @staticmethod
     def diff(original: dict[str, Any], replay: dict[str, Any]) -> dict[str, Any]:

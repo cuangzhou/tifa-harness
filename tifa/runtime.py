@@ -41,12 +41,13 @@ class ResumeMismatch(RuntimeError): pass
 
 
 class Tifa:
-    def __init__(self, workspace: WorkspaceContext, model_client: ModelClient, *, max_steps: int = 8, max_attempts: int = 16, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, session_id: str | None = None, memory: LayeredMemory | None = None, history: list[dict[str, Any]] | None = None, messages: list[dict[str, Any]] | None = None, completed_fingerprints: set[str] | None = None, imported_from: str | None = None, parent_run_id: str | None = None, source_checkpoint_id: str | None = None) -> None:
+    def __init__(self, workspace: WorkspaceContext, model_client: ModelClient, *, max_steps: int = 8, max_attempts: int = 16, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, session_id: str | None = None, memory: LayeredMemory | None = None, history: list[dict[str, Any]] | None = None, messages: list[dict[str, Any]] | None = None, completed_fingerprints: set[str] | None = None, imported_from: str | None = None, parent_run_id: str | None = None, source_checkpoint_id: str | None = None, context_policy: str = "layered-budget-v2", memory_enabled: bool = True) -> None:
         self.workspace, self.model_client, self.max_steps, self.max_attempts = workspace, model_client, max_steps, max_attempts
         self.approval_policy, self.approver = approval_policy, approver
         self.session_id, self.memory, self.history = session_id or uuid.uuid4().hex, memory or LayeredMemory(), history or []
         self.messages, self.completed_fingerprints = messages or [], completed_fingerprints or set()
         self.imported_from, self.parent_run_id, self.source_checkpoint_id = imported_from, parent_run_id, source_checkpoint_id
+        self.context_policy, self.memory_enabled = context_policy, memory_enabled
         self.sessions = SessionStore(workspace.repo_root); self.memory_store = DurableMemoryStore(workspace.repo_root / ".tifa" / "memory" / "memory.json")
 
     def _delegate(self, task: str, steps: int) -> str:
@@ -70,7 +71,7 @@ class Tifa:
         return cls(context, model_client, session_id=payload.get("session_id"), memory=LayeredMemory(payload.get("memory")), history=payload.get("history", []), messages=payload.get("messages", []), completed_fingerprints=set(payload.get("completed_fingerprints", [])), imported_from=payload.get("legacy_source"), **kwargs)
 
     @classmethod
-    def resume_run(cls, workspace: str | Path, model_client: ModelClient, run_id: str, checkpoint_id: str | None = None, **kwargs: Any) -> "Tifa":
+    def resume_run(cls, workspace: str | Path, model_client: ModelClient, run_id: str, checkpoint_id: str | None = None, *, allow_snapshot_copy: bool = False, runtime_overrides: set[str] | None = None, **kwargs: Any) -> "Tifa":
         context = WorkspaceContext.build(workspace); cp_dir = context.repo_root / ".tifa" / "runs" / run_id / "checkpoints"
         candidates = sorted(cp_dir.glob("*.json"))
         if not candidates: raise FileNotFoundError("no checkpoint found")
@@ -87,8 +88,10 @@ class Tifa:
         if payload.get("state_digest") != digest(state): raise ResumeMismatch("checkpoint digest mismatch")
         registry = ToolRegistry(context, kwargs.get("approval_policy", payload["runtime_identity"]["approval_policy"]), delegate=lambda *_: "")
         current = {"provider": model_client.provider, "model": model_client.model, "approval_policy": registry.approval_policy, "tool_signature": registry.signature()}
-        if current != payload["runtime_identity"]: raise ResumeMismatch("runtime identity mismatch")
-        if payload.get("workspace_fingerprint") != context.fingerprint(): raise ResumeMismatch("workspace fingerprint mismatch")
+        overrides = runtime_overrides or set()
+        mismatches = [key for key in current if current[key] != payload["runtime_identity"].get(key) and key not in overrides]
+        if mismatches: raise ResumeMismatch(f"runtime identity mismatch: {', '.join(mismatches)}")
+        if not allow_snapshot_copy and payload.get("workspace_fingerprint") != context.fingerprint(): raise ResumeMismatch("workspace fingerprint mismatch")
         return cls(context, model_client, session_id=state["session_id"], memory=LayeredMemory(payload.get("memory")), history=payload.get("history", []), messages=payload.get("messages", []), completed_fingerprints=set(payload.get("completed_fingerprints", [])), parent_run_id=run_id, source_checkpoint_id=payload["checkpoint_id"], **kwargs)
 
     def _checkpoint(self, store: RunStore, state: dict[str, Any], registry: ToolRegistry, parent: str | None = None) -> dict[str, Any]:
@@ -97,7 +100,8 @@ class Tifa:
         payload["state_digest"] = digest(payload["state"]); store.write(f"checkpoints/{checkpoint_id}.json", "tifa-checkpoint.v2", payload); return payload
 
     def ask(self, request: str, *, verifier: dict[str, Any] | None = None, interrupt_at: str | None = None, case_store: CaseStore | None = None, case_category: str | None = None) -> AgentResult:
-        registry, store, context = self._registry(), RunStore(self.workspace.repo_root), ContextManager(self.workspace)
+        budget = 6000 if self.context_policy == "minimal" else 20000 if self.context_policy == "expanded" else 12000
+        registry, store, context = self._registry(), RunStore(self.workspace.repo_root), ContextManager(self.workspace, total_budget=budget)
         state: dict[str, Any] = {"run_id": store.run_id, "session_id": self.session_id, "parent_run_id": self.parent_run_id, "source_checkpoint_id": self.source_checkpoint_id, "status": "running", "phase": "MODEL_PENDING", "request": request, "tool_steps": 0, "attempts": 0, "stop_reason": None, "affected_paths": [], "started_at": now()}
         if not self.messages: self.messages.append({"role": "user", "content": request})
         store.write("task_state.json", "tifa-task-state.v2", state); store.append_trace("run_started", {"request": request, "parent_run_id": self.parent_run_id, "source_checkpoint_id": self.source_checkpoint_id})
@@ -105,6 +109,7 @@ class Tifa:
         cp = self._checkpoint(store, state, registry, last_cp); checkpoints.append(cp); last_cp = cp["checkpoint_id"]
         if interrupt_at == "MODEL_PENDING": raise InterruptedError("injected MODEL_PENDING interruption")
         answer, stop_reason, failure_category = "", "retry_limit_reached", None
+        if not self.memory_enabled: self.memory = LayeredMemory()
         selected_cases = case_store.search(case_category) if case_store and case_category else []
         relevant_cases = [c.summary for c in selected_cases if c.summary]
         context_manifests: list[dict[str, Any]] = []; usage: list[dict[str, Any]] = []; artifacts: dict[str, dict[str, Any]] = {}; security_events: list[dict[str, Any]] = []; seen_call_ids: set[str] = set()
@@ -157,7 +162,7 @@ class Tifa:
         report_event = store.append_trace("report", report); store.append_trace("verifier", verification)
         events = [json.loads(line) for line in (store.run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()]
         cp_refs = [{"checkpoint_id": c["checkpoint_id"], "event_sequence": c["event_sequence"], "state_digest": c["state_digest"]} for c in checkpoints]
-        evidence = {"run_id": store.run_id, "created_at": now(), "parent_replay_id": self.parent_run_id, "task_contract": {"task_id": store.run_id, "prompt": request, "allowed_tools": registry.names, "step_budget": self.max_steps, "expected_artifact": None, "verifier": verifier}, "repo_snapshot": {"snapshot_id": self.workspace.fingerprint(), "commit": None, "dirty": bool(self.workspace.status), "workspace_digest": self.workspace.fingerprint()}, "context_manifest": {"policy": "layered-budget-v2", "selected_items": context_manifests, "dropped_items": [], "token_estimate": sum(u.get("input_tokens", u.get("input_estimate", 0)) for u in usage)}, "events": events, "checkpoints": cp_refs, "artifacts": [{k: v for k, v in a.items() if k != "content"} for a in artifacts.values()], "verifier": verification, "metrics": {"expected_state_digest": digest(state_event["payload"]), "expected_report_digest": digest(report_event["payload"]), "provider_usage": usage, "security_events": security_events}, "provenance": {"provider": self.model_client.provider, "model": self.model_client.model, "code_version": "0.2.0"}}
+        evidence = {"run_id": store.run_id, "created_at": now(), "parent_replay_id": self.parent_run_id, "task_contract": {"task_id": store.run_id, "prompt": request, "allowed_tools": registry.names, "step_budget": self.max_steps, "expected_artifact": None, "verifier": verifier}, "repo_snapshot": {"snapshot_id": self.workspace.fingerprint(), "commit": None, "dirty": bool(self.workspace.status), "workspace_digest": self.workspace.fingerprint()}, "context_manifest": {"policy": self.context_policy, "memory_enabled": self.memory_enabled, "selected_items": context_manifests, "dropped_items": [], "token_estimate": sum(u.get("input_tokens", u.get("input_estimate", 0)) for u in usage)}, "events": events, "checkpoints": cp_refs, "artifacts": [{k: v for k, v in a.items() if k != "content"} for a in artifacts.values()], "verifier": verification, "metrics": {"expected_state_digest": digest(state_event["payload"]), "expected_report_digest": digest(report_event["payload"]), "provider_usage": usage, "security_events": security_events}, "provenance": {"provider": self.model_client.provider, "model": self.model_client.model, "code_version": "0.3.0"}}
         store.write("evidence_bundle.json", "evidence-bundle.v2", evidence)
         session = {"session_id": self.session_id, "history": self.history, "messages": self.messages, "memory": self.memory.state, "completed_fingerprints": sorted(self.completed_fingerprints), "workspace_fingerprint": WorkspaceContext.build(self.workspace.repo_root).fingerprint(), "runtime_identity": self.runtime_identity(registry), "latest_run_id": store.run_id, "updated_at": now()}
         self.sessions.save(self.session_id, session); self.memory_store.save(self.memory)

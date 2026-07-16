@@ -25,6 +25,7 @@ def command_parser() -> argparse.ArgumentParser:
     commands = root.add_subparsers(dest="command")
     replay = commands.add_parser("replay"); replay.add_argument("bundle", type=Path); replay.add_argument("--mode", choices=["offline", "forked", "counterfactual"], default="offline"); replay.add_argument("--output", type=Path)
     replay.add_argument("--spec", type=Path); replay.add_argument("--workspace", type=Path)
+    replay.add_argument("--provider", choices=["fake", "openai", "anthropic", "ollama"], default="fake"); replay.add_argument("--model")
     diff = commands.add_parser("replay-diff"); diff.add_argument("original", type=Path); diff.add_argument("replayed", type=Path)
     resume = commands.add_parser("resume-run"); resume.add_argument("run_id"); resume.add_argument("prompt", nargs="?"); resume.add_argument("--checkpoint"); resume.add_argument("--cwd", default="."); resume.add_argument("--provider", choices=["fake", "openai", "anthropic", "ollama"], default="fake"); resume.add_argument("--model"); resume.add_argument("--approval", choices=["never", "on-risk", "always"], default="on-risk")
     cases = commands.add_parser("cases"); csub = cases.add_subparsers(dest="cases_command")
@@ -49,7 +50,8 @@ def main(argv: list[str] | None = None) -> int:
     args = (command_parser() if is_command else agent_parser()).parse_args(raw)
     if getattr(args, "command", None) == "replay":
         spec = ReplaySpec(**json.loads(args.spec.read_text(encoding="utf-8"))) if args.spec else None
-        result = ReplayRunner().replay(args.bundle, args.mode, spec=spec, workspace=args.workspace)
+        replay_client = None if args.mode == "offline" else (FakeModelClient() if args.provider == "fake" else create_model_client(args.provider, args.model))
+        result = ReplayRunner().replay(args.bundle, args.mode, spec=spec, workspace=args.workspace, model_client=replay_client)
         payload = asdict(result) if isinstance(result, (ReplayDiffReport, ReplayResult)) else result
         if args.output: args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         consistent = payload.get("replay_consistent", payload.get("report", {}).get("replay_consistent", False))

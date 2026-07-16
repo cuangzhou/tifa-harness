@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pico.local/schemas/case-card.v1.json",
-  "title": "Pico CaseCard v1",
+  "$id": "https://tifa.local/schemas/case-card.v1.json",
+  "title": "Tifa CaseCard v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "case_id", "task_signature", "failure_signature", "minimal_delta", "evidence_refs", "verification_status", "applicability"],

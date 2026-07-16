@@ -6,6 +6,7 @@ from jsonschema import Draft202012Validator
 
 from tifa import FakeModelClient, ModelResponse, ToolCall, Tifa, build_agent
 from tifa.cases import CaseCard, CaseStore
+from dataclasses import asdict
 from tifa.replay import ReplayResult, ReplayRunner, ReplaySpec, workspace_digest
 from tifa.runtime import ResumeMismatch
 
@@ -63,10 +64,12 @@ def test_checkpoint_tamper_rejected(tmp_path: Path):
 
 
 def test_forked_replay_never_writes_source(tmp_path: Path):
-    (tmp_path / "source.txt").write_text("source", encoding="utf-8"); before = workspace_digest(tmp_path)
-    bundle = Path(__file__).parents[1] / "evaluation" / "fixtures" / "doc_01.json"
-    result = ReplayRunner().replay(bundle, spec=ReplaySpec("fixture-doc_01", "forked", "snapshot_copy", expected_source_digest=before), workspace=tmp_path, executor=lambda copy, spec: (copy / "source.txt").write_text("changed"))
-    assert isinstance(result, ReplayResult) and result.report.source_unchanged and (tmp_path / "source.txt").read_text() == "source"
+    (tmp_path / "source.txt").write_text("source", encoding="utf-8")
+    source = build_agent(tmp_path, FakeModelClient(["<final>source complete</final>"]), approval_policy="never").ask("source task")
+    before = workspace_digest(tmp_path); bundle = Path(source.run_dir) / "evidence_bundle.json"
+    result = ReplayRunner().replay(bundle, spec=ReplaySpec(source.run_id, "forked", "snapshot_copy", expected_source_digest=before), workspace=tmp_path, model_client=FakeModelClient(["<final>replayed</final>"]))
+    assert isinstance(result, ReplayResult) and result.report.source_unchanged and result.replay_run_id and result.replay_bundle
+    assert (tmp_path / "source.txt").read_text() == "source"
 
 
 def test_counterfactual_requires_one_override(tmp_path: Path):
@@ -75,11 +78,26 @@ def test_counterfactual_requires_one_override(tmp_path: Path):
     ReplaySpec("x", "counterfactual", "snapshot_copy", overrides={"memory_enabled": False}).validate()
 
 
+@pytest.mark.parametrize("variable,value", [("memory_enabled", False), ("context_policy", "minimal"), ("provider", "alternate")])
+def test_counterfactual_override_is_applied(tmp_path: Path, variable: str, value):
+    source = build_agent(tmp_path, FakeModelClient(["<final>source</final>"]), approval_policy="never").ask("counterfactual task", verifier={"assertions": [{"actual": 1, "equals": 1}]})
+    client = FakeModelClient(["<final>replayed</final>"])
+    if variable == "provider": client.provider = "alternate"
+    spec = ReplaySpec(source.run_id, "counterfactual", "snapshot_copy", overrides={variable: value}, expected_source_digest=workspace_digest(tmp_path))
+    result = ReplayRunner().replay(Path(source.run_dir) / "evidence_bundle.json", spec=spec, workspace=tmp_path, model_client=client)
+    assert isinstance(result, ReplayResult) and not result.report.confounded and result.applied_overrides == {variable: value}
+    if variable == "memory_enabled": assert result.replay_bundle["context_manifest"]["memory_enabled"] is False
+    if variable == "context_policy": assert result.replay_bundle["context_manifest"]["policy"] == "minimal"
+    if variable == "provider": assert result.replay_bundle["provenance"]["provider"] == "alternate"
+
+
 def test_case_promotion_and_search(tmp_path: Path):
     store = CaseStore(tmp_path / "cases")
-    card = CaseCard({"category": "bugfix", "tool_pattern": ["read_file"]}, {"category": "tool_error", "stop_reason": "failed"}, {"variable": "memory_enabled", "before": True, "after": False}, ["run:a", "run:b"], {"allowed_categories": ["bugfix"], "excluded_conditions": []}, "Use bounded memory")
+    source = build_agent(tmp_path, FakeModelClient(["<final>source</final>"]), approval_policy="never").ask("case task", verifier={"assertions": [{"actual": 1, "equals": 1}]})
+    replay = ReplayRunner().replay(Path(source.run_dir) / "evidence_bundle.json", spec=ReplaySpec(source.run_id, "counterfactual", "snapshot_copy", overrides={"memory_enabled": False}, expected_source_digest=workspace_digest(tmp_path)), workspace=tmp_path, model_client=FakeModelClient(["<final>fixed</final>"]))
+    card = CaseCard({"category": "bugfix", "tool_pattern": ["read_file"]}, {"category": "tool_error", "stop_reason": "failed"}, {"variable": "memory_enabled", "before": True, "after": False}, [f"run:{source.run_id}", f"run:{replay.replay_run_id}"], {"allowed_categories": ["bugfix"], "excluded_conditions": []}, "Use bounded memory")
     store.save(card)
-    promoted = store.promote(card, {"run_id": "replay-1", "confounded": False, "verifier": {"passed": True}, "same_task_contract": True, "same_snapshot": True})
+    promoted = store.promote(card, asdict(replay))
     assert promoted.verification_status == "verified" and store.search("bugfix")[0].case_id == card.case_id
     store.reject(card.case_id); assert not store.search("bugfix")
 

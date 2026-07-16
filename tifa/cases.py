@@ -39,9 +39,12 @@ class CaseStore:
         return [self.load(p.stem) for p in sorted(self.root.glob("*.json"))]
 
     def promote(self, card: CaseCard, replay: dict[str, Any]) -> CaseCard:
-        if replay.get("confounded") or replay.get("verifier", {}).get("passed") is not True or replay.get("budget_exceeded") or len(card.minimal_delta) != 3: raise ValueError("case promotion gate failed")
-        if not card.failure_signature.get("category") or not replay.get("same_task_contract") or not replay.get("same_snapshot"): raise ValueError("case provenance gate failed")
-        card.verification_status = "verified"; card.verification_run_id = replay.get("run_id"); self.save(card); return card
+        report = replay.get("report", {}); spec = replay.get("spec", {}); bundle = replay.get("replay_bundle", {}); overrides = spec.get("overrides", {})
+        variable = card.minimal_delta.get("variable")
+        if len(overrides) != 1 or variable not in overrides or overrides[variable] != card.minimal_delta.get("after"): raise ValueError("case minimal-delta gate failed")
+        if report.get("confounded") or bundle.get("verifier", {}).get("passed") is not True or replay.get("budget_exceeded"): raise ValueError("case verification gate failed")
+        if not card.failure_signature.get("category") or not replay.get("same_task_contract") or not replay.get("same_snapshot") or not report.get("source_unchanged"): raise ValueError("case provenance gate failed")
+        card.verification_status = "verified"; card.verification_run_id = replay.get("replay_run_id"); self.save(card); return card
 
     def reject(self, case_id: str) -> CaseCard:
         card = self.load(case_id); card.verification_status = "rejected"; self.save(card); return card

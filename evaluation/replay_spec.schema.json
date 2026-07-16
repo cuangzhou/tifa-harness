@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pico.local/schemas/replay-spec.v1.json",
-  "title": "Pico ReplaySpec v1",
+  "$id": "https://tifa.local/schemas/replay-spec.v1.json",
+  "title": "Tifa ReplaySpec v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "source_run_id", "mode", "workspace_policy", "overrides"],

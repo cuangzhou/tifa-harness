@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pico.local/schemas/evidence-bundle.v1.json",
-  "title": "Pico EvidenceBundle v1",
+  "$id": "https://tifa.local/schemas/evidence-bundle.v2.json",
+  "title": "Tifa EvidenceBundle v2",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "run_id", "task_contract", "repo_snapshot", "events", "artifacts", "verifier", "metrics"],

@@ -1,82 +1,129 @@
 {
-  "schema_version": "evidence-bundle.v1",
+  "schema_version": "evidence-bundle.v2",
   "run_id": "fixture-cross_03",
-  "created_at": "2026-07-14T00:00:00+00:00",
+  "created_at": "2026-07-16T00:00:00+00:00",
   "task_contract": {
     "task_id": "cross_03",
-    "prompt": "Deterministic replay fixture doc_01",
+    "prompt": "Execute Tifa scenario: config precedence bug",
     "allowed_tools": [
-      "read",
-      "write"
+      "read_file",
+      "patch_file"
     ],
-    "step_budget": 8,
-    "expected_artifact": "output.txt",
+    "step_budget": 4,
+    "expected_artifact": "artifacts/cross_03.txt",
     "category": "cross_file_code",
     "scenario": "config precedence bug",
-    "replay_focus": "tool sequence"
+    "replay_focus": "tool sequence",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/cross_03.txt"
+        }
+      ]
+    }
   },
   "repo_snapshot": {
-    "snapshot_id": "snapshot-doc_01",
+    "snapshot_id": "snapshot-cross_03",
     "commit": null,
     "dirty": false,
-    "workspace_digest": "fixture-doc_01"
+    "workspace_digest": "8081c987bec1367933f0c9621895e5fcc9ce6a5e092ac7e081022bafd371d217"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "cross_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 111
   },
   "events": [
     {
       "sequence": 1,
       "type": "state_patch",
-      "timestamp": "2026-07-14T00:00:01+00:00",
+      "timestamp": "2026-07-16T00:00:00+00:00",
       "payload": {
-        "status": "completed"
+        "fixture_id": "cross_03",
+        "category": "cross_file_code",
+        "status": "completed",
+        "replay_focus": "tool sequence",
+        "ordinal": 11
       }
     },
     {
       "sequence": 2,
       "type": "artifact",
-      "timestamp": "2026-07-14T00:00:02+00:00",
+      "timestamp": "2026-07-16T00:00:01+00:00",
       "payload": {
-        "path": "output.txt",
-        "content": "fixture artifact"
+        "path": "artifacts/cross_03.txt",
+        "content": "Tifa fixture cross_03: config precedence bug"
       }
     },
     {
       "sequence": 3,
-      "type": "verifier",
-      "timestamp": "2026-07-14T00:00:03+00:00",
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
       "payload": {
-        "passed": true,
-        "failure_category": null
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "cross_03"
+        ],
+        "token_estimate": 111
       }
     },
     {
       "sequence": 4,
       "type": "report",
-      "timestamp": "2026-07-14T00:00:04+00:00",
+      "timestamp": "2026-07-16T00:00:03+00:00",
       "payload": {
-        "status": "passed"
+        "fixture_id": "cross_03",
+        "scenario": "config precedence bug",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/cross_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
       }
     }
   ],
   "checkpoints": [
     {
-      "checkpoint_id": "cp-1",
+      "checkpoint_id": "cp-cross_03",
       "event_sequence": 1,
-      "state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c"
+      "state_digest": "80f75dfd55ce14d5a322d3d669a797256a0daa82a086e71e5513c37c03a65294"
     }
   ],
   "artifacts": [
     {
-      "path": "output.txt",
-      "digest": "5a4050578fcf57be094c5f13a882a23a86a00ab3a7f6feaf9bb578661f24875d",
-      "status": "recorded"
+      "path": "artifacts/cross_03.txt",
+      "digest": "50425e7137463beac3eec6dbadcb6fd24ee63a7112e7d2791fd84e065ab4b681",
+      "status": "modified"
     }
   ],
   "verifier": {
+    "status": "passed",
     "passed": true,
     "failure_category": null
   },
   "metrics": {
-    "expected_state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c",
-    "expected_report_digest": "76f1805001bc4f155c8efa5651c57c4f1858af1f6786cbe4596214a4b64375a6"
+    "expected_state_digest": "80f75dfd55ce14d5a322d3d669a797256a0daa82a086e71e5513c37c03a65294",
+    "expected_report_digest": "ce151137efd1d5e5dea030a5b2a59d2cc6608a18dd7440cb6c87658ae2ca1fc8",
+    "tool_steps": 1,
+    "tokens": 111
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
   }
 }

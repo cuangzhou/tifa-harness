@@ -3,13 +3,12 @@ from pathlib import Path
 
 import pytest
 
-from tifa import FakeModelClient, Pico, Tifa, build_agent
+from tifa import FakeModelClient, Tifa, build_agent
 from tifa.replay import ReplayDiffReport, ReplayRunner
 from tifa.runtime import ResumeMismatch, parse
 
 
-def test_public_alias_and_parser():
-    assert Pico is Tifa
+def test_public_api_and_parser():
     assert parse('<final>done</final>') == ("final", "done")
     assert parse('<tool>{"name":"read_file","arguments":{"path":"a"}}</tool>')[0] == "tool"
     assert parse("bad")[0] == "retry"

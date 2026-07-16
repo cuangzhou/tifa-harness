@@ -1,82 +1,129 @@
 {
-  "schema_version": "evidence-bundle.v1",
+  "schema_version": "evidence-bundle.v2",
   "run_id": "fixture-context_03",
-  "created_at": "2026-07-14T00:00:00+00:00",
+  "created_at": "2026-07-16T00:00:00+00:00",
   "task_contract": {
     "task_id": "context_03",
-    "prompt": "Deterministic replay fixture doc_01",
+    "prompt": "Execute Tifa scenario: incorrect retrieved case",
     "allowed_tools": [
-      "read",
-      "write"
+      "read_file",
+      "patch_file"
     ],
-    "step_budget": 8,
-    "expected_artifact": "output.txt",
+    "step_budget": 4,
+    "expected_artifact": "artifacts/context_03.txt",
     "category": "context_pollution",
     "scenario": "incorrect retrieved case",
-    "replay_focus": "negative case injection"
+    "replay_focus": "negative case injection",
+    "verifier": {
+      "files": [
+        {
+          "path": "artifacts/context_03.txt"
+        }
+      ]
+    }
   },
   "repo_snapshot": {
-    "snapshot_id": "snapshot-doc_01",
+    "snapshot_id": "snapshot-context_03",
     "commit": null,
     "dirty": false,
-    "workspace_digest": "fixture-doc_01"
+    "workspace_digest": "1a39f28af1a71c94f0694e39e6585829e36c9135f9557f9b9867cd5ab8b26ec6"
+  },
+  "context_manifest": {
+    "policy": "layered-budget-v2",
+    "selected_items": [
+      {
+        "fixture_id": "context_03"
+      }
+    ],
+    "dropped_items": [],
+    "token_estimate": 115
   },
   "events": [
     {
       "sequence": 1,
       "type": "state_patch",
-      "timestamp": "2026-07-14T00:00:01+00:00",
+      "timestamp": "2026-07-16T00:00:00+00:00",
       "payload": {
-        "status": "completed"
+        "fixture_id": "context_03",
+        "category": "context_pollution",
+        "status": "completed",
+        "replay_focus": "negative case injection",
+        "ordinal": 15
       }
     },
     {
       "sequence": 2,
       "type": "artifact",
-      "timestamp": "2026-07-14T00:00:02+00:00",
+      "timestamp": "2026-07-16T00:00:01+00:00",
       "payload": {
-        "path": "output.txt",
-        "content": "fixture artifact"
+        "path": "artifacts/context_03.txt",
+        "content": "Tifa fixture context_03: incorrect retrieved case"
       }
     },
     {
       "sequence": 3,
-      "type": "verifier",
-      "timestamp": "2026-07-14T00:00:03+00:00",
+      "type": "context_manifest",
+      "timestamp": "2026-07-16T00:00:02+00:00",
       "payload": {
-        "passed": true,
-        "failure_category": null
+        "policy": "layered-budget-v2",
+        "selected_items": [
+          "context_03"
+        ],
+        "token_estimate": 115
       }
     },
     {
       "sequence": 4,
       "type": "report",
-      "timestamp": "2026-07-14T00:00:04+00:00",
+      "timestamp": "2026-07-16T00:00:03+00:00",
       "payload": {
-        "status": "passed"
+        "fixture_id": "context_03",
+        "scenario": "incorrect retrieved case",
+        "stop_reason": "final_answer_returned",
+        "affected_paths": [
+          "artifacts/context_03.txt"
+        ]
+      }
+    },
+    {
+      "sequence": 5,
+      "type": "verifier",
+      "timestamp": "2026-07-16T00:00:04+00:00",
+      "payload": {
+        "status": "passed",
+        "passed": true,
+        "failure_category": null
       }
     }
   ],
   "checkpoints": [
     {
-      "checkpoint_id": "cp-1",
+      "checkpoint_id": "cp-context_03",
       "event_sequence": 1,
-      "state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c"
+      "state_digest": "f18be62ed95c4513383a8711837ef77ffb7c7add052fb7b7a44f9322deecc29a"
     }
   ],
   "artifacts": [
     {
-      "path": "output.txt",
-      "digest": "5a4050578fcf57be094c5f13a882a23a86a00ab3a7f6feaf9bb578661f24875d",
-      "status": "recorded"
+      "path": "artifacts/context_03.txt",
+      "digest": "7b3b1c2ab78f9cda6d44edda7162b716b81487cc3cbd4304202160f30d62a256",
+      "status": "modified"
     }
   ],
   "verifier": {
+    "status": "passed",
     "passed": true,
     "failure_category": null
   },
   "metrics": {
-    "expected_state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c",
-    "expected_report_digest": "76f1805001bc4f155c8efa5651c57c4f1858af1f6786cbe4596214a4b64375a6"
+    "expected_state_digest": "f18be62ed95c4513383a8711837ef77ffb7c7add052fb7b7a44f9322deecc29a",
+    "expected_report_digest": "45e03a7c216d37e0a72f74f91800928538b42c6d1e09adf60967aaab859e2193",
+    "tool_steps": 1,
+    "tokens": 115
+  },
+  "provenance": {
+    "provider": "deterministic",
+    "model": "fixture-runtime",
+    "code_version": "0.3.0"
   }
 }
