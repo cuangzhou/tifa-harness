@@ -1,8 +1,6 @@
 # Tifa
 
-Tifa 是依据当前工作区保存的 Pico 设计资料、schema、fixture 和 measured artifact 重建的本地代码 Agent Harness。它面向代码仓库长任务，提供有状态 Agent Loop、分层上下文、结构化记忆、受治理工具、checkpoint/resume、运行工件、trace 和确定性 Offline Replay。
-
-本仓库不是遗失 Pico 源码的逐行恢复。能够确认的历史能力按 Pico 资料重建；Tifa 在此基础上完成命名迁移、版本化工件、恢复一致性校验以及 Runtime 与 Offline Replay 的集成。
+Tifa 是本地代码 Agent Harness。它面向代码仓库长任务，提供有状态 Agent Loop、分层上下文、结构化记忆、受治理工具、checkpoint/resume、运行工件、trace 和确定性 Offline Replay。
 
 ## 快速开始
 
