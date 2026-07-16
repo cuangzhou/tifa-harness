@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 import hashlib
 import json
+import time
 from pathlib import Path
 import re
 from typing import Any, Callable
@@ -10,6 +11,7 @@ import uuid
 
 from .context_manager import ContextManager
 from .cases import CaseStore
+from .execution import ExecutionBackend, ExecutionPolicy, LocalExecutionBackend, ResourceLimits
 from .memory import DurableMemoryStore, LayeredMemory
 from .models import AgentResult, FakeModelClient, ModelClient, ToolCall
 from .providers import ProviderError
@@ -22,6 +24,16 @@ from .workspace import WorkspaceContext
 TOOL_PATTERN = re.compile(r"<tool>\s*(\{.*?\})\s*</tool>", re.DOTALL | re.IGNORECASE)
 FINAL_PATTERN = re.compile(r"<final>\s*(.*?)\s*</final>", re.DOTALL | re.IGNORECASE)
 PHASES = {"MODEL_PENDING", "TOOL_PENDING", "TOOL_RUNNING", "TOOL_COMMITTED", "FINALIZING"}
+
+
+@dataclass
+class RunBudget:
+    max_model_calls: int = 16
+    max_input_tokens: int = 200_000
+    max_output_tokens: int = 50_000
+    max_tool_calls: int = 8
+    max_duration_seconds: float = 600.0
+    max_cost_usd: float | None = None
 
 
 def parse(content: str) -> tuple[str, Any]:
@@ -41,21 +53,22 @@ class ResumeMismatch(RuntimeError): pass
 
 
 class Tifa:
-    def __init__(self, workspace: WorkspaceContext, model_client: ModelClient, *, max_steps: int = 8, max_attempts: int = 16, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, session_id: str | None = None, memory: LayeredMemory | None = None, history: list[dict[str, Any]] | None = None, messages: list[dict[str, Any]] | None = None, completed_fingerprints: set[str] | None = None, imported_from: str | None = None, parent_run_id: str | None = None, source_checkpoint_id: str | None = None, context_policy: str = "layered-budget-v2", memory_enabled: bool = True) -> None:
+    def __init__(self, workspace: WorkspaceContext, model_client: ModelClient, *, max_steps: int = 8, max_attempts: int = 16, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, session_id: str | None = None, memory: LayeredMemory | None = None, history: list[dict[str, Any]] | None = None, messages: list[dict[str, Any]] | None = None, completed_fingerprints: set[str] | None = None, imported_from: str | None = None, parent_run_id: str | None = None, source_checkpoint_id: str | None = None, context_policy: str = "layered-budget-v2", memory_enabled: bool = True, execution_backend: ExecutionBackend | None = None, execution_policy: ExecutionPolicy | None = None, resource_limits: ResourceLimits | None = None, run_budget: RunBudget | None = None) -> None:
         self.workspace, self.model_client, self.max_steps, self.max_attempts = workspace, model_client, max_steps, max_attempts
         self.approval_policy, self.approver = approval_policy, approver
         self.session_id, self.memory, self.history = session_id or uuid.uuid4().hex, memory or LayeredMemory(), history or []
         self.messages, self.completed_fingerprints = messages or [], completed_fingerprints or set()
         self.imported_from, self.parent_run_id, self.source_checkpoint_id = imported_from, parent_run_id, source_checkpoint_id
         self.context_policy, self.memory_enabled = context_policy, memory_enabled
+        self.execution_backend = execution_backend or LocalExecutionBackend(); self.execution_policy = execution_policy or ExecutionPolicy(); self.resource_limits = resource_limits or ResourceLimits(); self.run_budget = run_budget or RunBudget(max_model_calls=max_attempts, max_tool_calls=max_steps)
         self.sessions = SessionStore(workspace.repo_root); self.memory_store = DurableMemoryStore(workspace.repo_root / ".tifa" / "memory" / "memory.json")
 
     def _delegate(self, task: str, steps: int) -> str:
-        child = Tifa(self.workspace, self.model_client, max_steps=steps, max_attempts=max(steps * 2, 3), approval_policy="never", memory=LayeredMemory(self.memory.state)); child._registry_depth = 1
+        child = Tifa(self.workspace, self.model_client, max_steps=steps, max_attempts=max(steps * 2, 3), approval_policy="never", memory=LayeredMemory(self.memory.state), execution_backend=self.execution_backend, execution_policy=self.execution_policy, resource_limits=self.resource_limits, run_budget=self.run_budget); child._registry_depth = 1
         return child.ask(task).answer
 
     def _registry(self) -> ToolRegistry:
-        return ToolRegistry(self.workspace, self.approval_policy, self.approver, self._delegate, getattr(self, "_registry_depth", 0), 1)
+        return ToolRegistry(self.workspace, self.approval_policy, self.approver, self._delegate, getattr(self, "_registry_depth", 0), 1, self.execution_backend, self.resource_limits, self.execution_policy)
 
     def runtime_identity(self, registry: ToolRegistry) -> dict[str, Any]:
         return {"provider": self.model_client.provider, "model": self.model_client.model, "approval_policy": self.approval_policy, "tool_signature": registry.signature()}
@@ -112,12 +125,17 @@ class Tifa:
         if not self.memory_enabled: self.memory = LayeredMemory()
         selected_cases = case_store.search(case_category) if case_store and case_category else []
         relevant_cases = [c.summary for c in selected_cases if c.summary]
-        context_manifests: list[dict[str, Any]] = []; usage: list[dict[str, Any]] = []; artifacts: dict[str, dict[str, Any]] = {}; security_events: list[dict[str, Any]] = []; seen_call_ids: set[str] = set()
+        context_manifests: list[dict[str, Any]] = []; usage: list[dict[str, Any]] = []; artifacts: dict[str, dict[str, Any]] = {}; security_events: list[dict[str, Any]] = []; execution_events: list[dict[str, Any]] = []; seen_call_ids: set[str] = set(); run_started = time.perf_counter()
+        budget_usage = {"model_calls": 0, "input_tokens": 0, "output_tokens": 0, "tool_calls": 0, "cost_usd": 0.0}
         while state["tool_steps"] < self.max_steps and state["attempts"] < self.max_attempts:
+            if budget_usage["model_calls"] >= self.run_budget.max_model_calls or (time.perf_counter() - run_started) > self.run_budget.max_duration_seconds:
+                failure_category = "budget_exceeded"; stop_reason = "budget_exceeded"; answer = "Tifa stopped: run budget exceeded."; break
             state["attempts"] += 1; built = context.build(request, self.memory, self.history, registry.schemas(), relevant_cases); context_manifests.append({**built.metadata, "case_ids": [c.case_id for c in selected_cases]})
             try: response = self.model_client.complete(built.prompt, registry.schemas(), built.cache_key, self.messages)
             except ProviderError as exc: failure_category = exc.category; stop_reason = "provider_error"; answer = f"Tifa stopped: {exc.category}."; break
-            usage.append(response.usage); store.append_trace("model_response", {"attempt": state["attempts"], "text": response.text, "tool_calls": [asdict(c) for c in response.tool_calls], "usage": response.usage, "cache": response.cache, "raw_response_ref": response.raw_response_ref})
+            usage.append(response.usage); budget_usage["model_calls"] += 1; budget_usage["input_tokens"] += int(response.usage.get("input_tokens", response.usage.get("prompt_tokens", response.usage.get("input_estimate", 0)))); budget_usage["output_tokens"] += int(response.usage.get("output_tokens", response.usage.get("completion_tokens", response.usage.get("output_estimate", 0)))); budget_usage["cost_usd"] += float(response.usage.get("cost_usd", 0.0))
+            if budget_usage["input_tokens"] > self.run_budget.max_input_tokens or budget_usage["output_tokens"] > self.run_budget.max_output_tokens or (self.run_budget.max_cost_usd is not None and budget_usage["cost_usd"] > self.run_budget.max_cost_usd): failure_category = "budget_exceeded"; stop_reason = "budget_exceeded"; answer = "Tifa stopped: token or cost budget exceeded."; break
+            store.append_trace("model_response", {"attempt": state["attempts"], "text": response.text, "tool_calls": [asdict(c) for c in response.tool_calls], "usage": response.usage, "cache": response.cache, "raw_response_ref": response.raw_response_ref})
             calls = response.tool_calls
             if not calls:
                 kind, payload = parse(response.text)
@@ -135,8 +153,12 @@ class Tifa:
                 if interrupt_at == "TOOL_RUNNING": raise InterruptedError("injected TOOL_RUNNING interruption")
                 if fingerprint in self.completed_fingerprints: output, affected, ok = "reused committed tool result", [], True
                 else:
-                    try: output, affected = registry.run(call.name, call.arguments); ok = True; self.completed_fingerprints.add(fingerprint); self.memory.after_tool(call.name, call.arguments, output)
+                    try:
+                        registry.last_execution = None; output, affected = registry.run(call.name, call.arguments); ok = True; self.completed_fingerprints.add(fingerprint); self.memory.after_tool(call.name, call.arguments, output)
+                        if registry.last_execution: execution_events.append(asdict(registry.last_execution)); security_events.extend({"type": event, "tool": call.name} for event in registry.last_execution.security_events)
                     except Exception as exc: output, affected, ok = f"error: {type(exc).__name__}: {exc}", [], False; failure_category = "tool_error"
+                budget_usage["tool_calls"] += 1
+                if budget_usage["tool_calls"] > self.run_budget.max_tool_calls: failure_category = "budget_exceeded"; stop_reason = "budget_exceeded"; answer = "Tifa stopped: tool-call budget exceeded."
                 after_digest = file_digest(target) if target and target.is_file() else None
                 state["tool_steps"] += 1; state["affected_paths"] = sorted(set(state["affected_paths"] + affected)); state["phase"] = "TOOL_COMMITTED"
                 commit = {"call_id": call.id, "name": call.name, "arguments": call.arguments, "output": output, "ok": ok, "affected_paths": affected, "fingerprint": fingerprint, "before_digest": before_digest, "after_digest": after_digest}
@@ -148,12 +170,14 @@ class Tifa:
                 cp = self._checkpoint(store, state, registry, last_cp); checkpoints.append(cp); last_cp = cp["checkpoint_id"]
                 if interrupt_at == "TOOL_COMMITTED": raise InterruptedError("injected TOOL_COMMITTED interruption")
                 state["phase"] = "MODEL_PENDING"
+                if stop_reason == "budget_exceeded": break
+            if stop_reason == "budget_exceeded": break
         else:
             stop_reason = "step_limit_reached" if state["tool_steps"] >= self.max_steps else "retry_limit_reached"; answer = f"Tifa stopped: {stop_reason}."
         state["phase"] = "FINALIZING"
         if interrupt_at == "FINALIZING": raise InterruptedError("injected FINALIZING interruption")
         if interrupt_at == "VERIFIER_PENDING": raise InterruptedError("injected VERIFIER_PENDING interruption")
-        verification = verify_contract(self.workspace.repo_root, verifier)
+        verification = verify_contract(self.workspace.repo_root, verifier, self.execution_backend)
         state.update({"status": "finished", "stop_reason": stop_reason, "failure_category": failure_category or verification.get("failure_category"), "finished_at": now()})
         report = {"run_id": store.run_id, "session_id": self.session_id, "parent_run_id": self.parent_run_id, "source_checkpoint_id": self.source_checkpoint_id, "answer": answer, "stop_reason": stop_reason, "failure_category": state["failure_category"], "tool_steps": state["tool_steps"], "attempts": state["attempts"], "affected_paths": state["affected_paths"], "verifier": verification}
         store.write("task_state.json", "tifa-task-state.v2", state); store.write("report.json", "tifa-report.v2", report)
@@ -162,7 +186,7 @@ class Tifa:
         report_event = store.append_trace("report", report); store.append_trace("verifier", verification)
         events = [json.loads(line) for line in (store.run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()]
         cp_refs = [{"checkpoint_id": c["checkpoint_id"], "event_sequence": c["event_sequence"], "state_digest": c["state_digest"]} for c in checkpoints]
-        evidence = {"run_id": store.run_id, "created_at": now(), "parent_replay_id": self.parent_run_id, "task_contract": {"task_id": store.run_id, "prompt": request, "allowed_tools": registry.names, "step_budget": self.max_steps, "expected_artifact": None, "verifier": verifier}, "repo_snapshot": {"snapshot_id": self.workspace.fingerprint(), "commit": None, "dirty": bool(self.workspace.status), "workspace_digest": self.workspace.fingerprint()}, "context_manifest": {"policy": self.context_policy, "memory_enabled": self.memory_enabled, "selected_items": context_manifests, "dropped_items": [], "token_estimate": sum(u.get("input_tokens", u.get("input_estimate", 0)) for u in usage)}, "events": events, "checkpoints": cp_refs, "artifacts": [{k: v for k, v in a.items() if k != "content"} for a in artifacts.values()], "verifier": verification, "metrics": {"expected_state_digest": digest(state_event["payload"]), "expected_report_digest": digest(report_event["payload"]), "provider_usage": usage, "security_events": security_events}, "provenance": {"provider": self.model_client.provider, "model": self.model_client.model, "code_version": "0.3.0"}}
+        evidence = {"run_id": store.run_id, "created_at": now(), "parent_replay_id": self.parent_run_id, "task_contract": {"task_id": store.run_id, "prompt": request, "allowed_tools": registry.names, "step_budget": self.max_steps, "expected_artifact": None, "verifier": verifier}, "repo_snapshot": {"snapshot_id": self.workspace.fingerprint(), "commit": None, "dirty": bool(self.workspace.status), "workspace_digest": self.workspace.fingerprint()}, "context_manifest": {"policy": self.context_policy, "memory_enabled": self.memory_enabled, "selected_items": context_manifests, "dropped_items": [], "token_estimate": sum(u.get("input_tokens", u.get("input_estimate", 0)) for u in usage)}, "events": events, "checkpoints": cp_refs, "artifacts": [{k: v for k, v in a.items() if k != "content"} for a in artifacts.values()], "verifier": verification, "metrics": {"expected_state_digest": digest(state_event["payload"]), "expected_report_digest": digest(report_event["payload"]), "provider_usage": usage, "budget_usage": budget_usage, "execution_events": execution_events, "security_events": security_events}, "provenance": {"provider": self.model_client.provider, "model": self.model_client.model, "code_version": "0.4.0"}}
         store.write("evidence_bundle.json", "evidence-bundle.v2", evidence)
         session = {"session_id": self.session_id, "history": self.history, "messages": self.messages, "memory": self.memory.state, "completed_fingerprints": sorted(self.completed_fingerprints), "workspace_fingerprint": WorkspaceContext.build(self.workspace.repo_root).fingerprint(), "runtime_identity": self.runtime_identity(registry), "latest_run_id": store.run_id, "updated_at": now()}
         self.sessions.save(self.session_id, session); self.memory_store.save(self.memory)

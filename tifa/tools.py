@@ -5,9 +5,9 @@ import json
 import os
 from pathlib import Path
 import re
-import subprocess
 from typing import Any, Callable
 
+from .execution import ExecutionBackend, ExecutionPolicy, ExecutionRequest, LocalExecutionBackend, ResourceLimits, command_argv, result_text
 from .workspace import WorkspaceContext
 
 READ_ONLY = {"list_files", "read_file", "search", "delegate"}
@@ -34,11 +34,13 @@ def call_fingerprint(name: str, arguments: dict[str, Any]) -> str:
 
 
 class ToolRegistry:
-    def __init__(self, workspace: WorkspaceContext, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, delegate: Callable[[str, int], str] | None = None, depth: int = 0, max_depth: int = 1) -> None:
+    def __init__(self, workspace: WorkspaceContext, approval_policy: str = "on-risk", approver: Callable[[str, dict[str, Any]], bool] | None = None, delegate: Callable[[str, int], str] | None = None, depth: int = 0, max_depth: int = 1, execution_backend: ExecutionBackend | None = None, resource_limits: ResourceLimits | None = None, execution_policy: ExecutionPolicy | None = None) -> None:
         if approval_policy not in {"never", "on-risk", "always"}:
             raise ValueError("invalid approval policy")
         self.workspace, self.approval_policy, self.approver = workspace, approval_policy, approver
         self.delegate_fn, self.depth, self.max_depth = delegate, depth, max_depth
+        self.execution_backend = execution_backend or LocalExecutionBackend(); self.resource_limits = resource_limits or ResourceLimits(); self.execution_policy = execution_policy or ExecutionPolicy()
+        self.last_execution = None
 
     @property
     def names(self) -> list[str]:
@@ -95,9 +97,9 @@ class ToolRegistry:
         if name == "run_shell":
             command, timeout = str(args.get("command", "")), int(args.get("timeout", 30))
             if not command or not 1 <= timeout <= 120: raise ValueError("invalid shell command or timeout")
-            env = {k: v for k, v in os.environ.items() if k.upper() in {"PATH", "PATHEXT", "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "TEMP", "TMP", "PYTHONPATH", "VIRTUAL_ENV"}}
-            result = subprocess.run(command, cwd=self.workspace.repo_root, shell=True, text=True, capture_output=True, timeout=timeout, env=env)
-            return f"exit_code={result.returncode}\n{result.stdout}{result.stderr}"[:30000], affected
+            limits = ResourceLimits(self.resource_limits.cpus, self.resource_limits.memory_mb, self.resource_limits.pids, timeout)
+            self.last_execution = self.execution_backend.execute(ExecutionRequest(command_argv(command, self.execution_policy.allow_shell), self.workspace.repo_root, limits=limits, policy=self.execution_policy))
+            return result_text(self.last_execution), affected
         if name == "write_file":
             path = self.workspace.resolve(str(args["path"])); path.parent.mkdir(parents=True, exist_ok=True)
             if path.exists() and path.is_dir(): raise ValueError("write_file target is a directory")
