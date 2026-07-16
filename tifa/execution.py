@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import json
 import os
 from pathlib import Path
 import shlex
@@ -66,7 +67,7 @@ class LocalExecutionBackend:
     name = "local"
     def execute(self, request: ExecutionRequest) -> ExecutionResult:
         started = time.perf_counter(); env = {k: v for k, v in os.environ.items() if k.upper() in {"PATH", "PATHEXT", "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "TEMP", "TMP", "PYTHONPATH", "VIRTUAL_ENV"}}
-        env.update(request.env); flags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
+        env.update(request.env); flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) if os.name == "nt" else 0
         process = subprocess.Popen(request.argv, cwd=request.workspace, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=flags)
         timed_out = False
         try: stdout, stderr = process.communicate(timeout=request.limits.timeout_seconds)
@@ -83,7 +84,11 @@ class DockerExecutionBackend:
     name = "docker"
     def __init__(self, image: str = "tifa-runner:0.4.0") -> None: self.image = image
     def _digest(self) -> str | None:
-        try: return subprocess.check_output(["docker", "image", "inspect", self.image, "--format", "{{index .RepoDigests 0}}"], text=True, stderr=subprocess.DEVNULL, timeout=5).strip() or subprocess.check_output(["docker", "image", "inspect", self.image, "--format", "{{.Id}}"], text=True, timeout=5).strip()
+        try:
+            image_id = subprocess.check_output(["docker", "image", "inspect", self.image, "--format", "{{.Id}}"], text=True, stderr=subprocess.DEVNULL, timeout=5).strip()
+            inspect = subprocess.check_output(["docker", "image", "inspect", self.image, "--format", "{{json .RepoDigests}}"], text=True, stderr=subprocess.DEVNULL, timeout=5).strip()
+            digests = json.loads(inspect) if inspect else []
+            return digests[0] if digests else image_id or None
         except Exception: return None
     def execute(self, request: ExecutionRequest) -> ExecutionResult:
         if request.policy.network not in {"deny", "allow"}: raise ValueError("invalid network policy")
