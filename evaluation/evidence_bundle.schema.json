@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pico.local/schemas/evidence-bundle.v1.json",
+  "title": "Pico EvidenceBundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "task_contract", "repo_snapshot", "events", "artifacts", "verifier", "metrics"],
+  "properties": {
+    "schema_version": {"const": "evidence-bundle.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "parent_replay_id": {"type": ["string", "null"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "task_contract": {
+      "type": "object",
+      "required": ["task_id", "prompt", "allowed_tools", "step_budget"],
+      "properties": {
+        "task_id": {"type": "string"},
+        "prompt": {"type": "string"},
+        "allowed_tools": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "step_budget": {"type": "integer", "minimum": 1},
+        "expected_artifact": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "repo_snapshot": {
+      "type": "object",
+      "required": ["snapshot_id", "commit", "dirty", "workspace_digest"],
+      "properties": {
+        "snapshot_id": {"type": "string"},
+        "commit": {"type": ["string", "null"]},
+        "dirty": {"type": "boolean"},
+        "workspace_digest": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "context_manifest": {
+      "type": "object",
+      "properties": {
+        "policy": {"type": "string"},
+        "selected_items": {"type": "array", "items": {"type": "object"}},
+        "dropped_items": {"type": "array", "items": {"type": "object"}},
+        "token_estimate": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "events": {"type": "array", "items": {"type": "object", "required": ["sequence", "type", "timestamp"]}},
+    "checkpoints": {"type": "array", "items": {"type": "object", "required": ["checkpoint_id", "event_sequence", "state_digest"]}},
+    "artifacts": {"type": "array", "items": {"type": "object", "required": ["path", "digest", "status"]}},
+    "verifier": {"type": "object", "required": ["passed"], "properties": {"passed": {"type": "boolean"}, "failure_category": {"type": ["string", "null"]}}, "additionalProperties": true},
+    "metrics": {"type": "object", "additionalProperties": {"type": ["number", "integer", "string", "boolean", "null"]}},
+    "provenance": {"type": "object", "properties": {"provider": {"type": "string"}, "model": {"type": "string"}, "code_version": {"type": "string"}}, "additionalProperties": true}
+  }
+}

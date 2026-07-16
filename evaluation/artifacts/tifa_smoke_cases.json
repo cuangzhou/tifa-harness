@@ -1,0 +1,134 @@
+[
+  {
+    "run_id": "fixture-context_01",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4757000006065937
+  },
+  {
+    "run_id": "fixture-context_02",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4169000003457768
+  },
+  {
+    "run_id": "fixture-doc_01",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4031999997096136
+  },
+  {
+    "run_id": "fixture-doc_02",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.41000000055646524
+  },
+  {
+    "run_id": "fixture-resume_01",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4564000009850133
+  },
+  {
+    "run_id": "fixture-resume_02",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": "interrupted_partial_state",
+    "duration_ms": 0.4062999996676808
+  },
+  {
+    "run_id": "fixture-side_effect_01",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4030999989481643
+  },
+  {
+    "run_id": "fixture-side_effect_02",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4927000009047333
+  },
+  {
+    "run_id": "fixture-single_01",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.5467000009957701
+  },
+  {
+    "run_id": "fixture-single_02",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.5029000003560213
+  },
+  {
+    "run_id": "fixture-tool_01",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": null,
+    "duration_ms": 0.4837000014958903
+  },
+  {
+    "run_id": "fixture-tool_02",
+    "events_replayed": 4,
+    "state_digest_match": true,
+    "report_digest_match": true,
+    "artifact_digest_match": true,
+    "verifier_match": true,
+    "replay_consistent": true,
+    "failure_category": "policy_denied",
+    "duration_ms": 0.4046000012749573
+  }
+]

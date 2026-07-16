@@ -1,0 +1,73 @@
+{
+  "schema_version": "evidence-bundle.v1",
+  "run_id": "fixture-single_01",
+  "created_at": "2026-07-14T00:00:00+00:00",
+  "task_contract": {
+    "task_id": "single_01",
+    "prompt": "Deterministic replay fixture single_01",
+    "allowed_tools": [
+      "read",
+      "write"
+    ],
+    "step_budget": 8,
+    "expected_artifact": "output.txt"
+  },
+  "repo_snapshot": {
+    "snapshot_id": "snapshot-single_01",
+    "commit": null,
+    "dirty": false,
+    "workspace_digest": "fixture-single_01"
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "state_patch",
+      "timestamp": "2026-07-14T00:00:01+00:00",
+      "payload": {
+        "status": "completed"
+      }
+    },
+    {
+      "sequence": 2,
+      "type": "artifact",
+      "timestamp": "2026-07-14T00:00:02+00:00",
+      "payload": {
+        "path": "output.txt",
+        "content": "fixture artifact"
+      }
+    },
+    {
+      "sequence": 3,
+      "type": "verifier",
+      "timestamp": "2026-07-14T00:00:03+00:00",
+      "payload": {
+        "passed": true,
+        "failure_category": null
+      }
+    },
+    {
+      "sequence": 4,
+      "type": "report",
+      "timestamp": "2026-07-14T00:00:04+00:00",
+      "payload": {
+        "status": "passed"
+      }
+    }
+  ],
+  "checkpoints": [],
+  "artifacts": [
+    {
+      "path": "output.txt",
+      "digest": "5a4050578fcf57be094c5f13a882a23a86a00ab3a7f6feaf9bb578661f24875d",
+      "status": "recorded"
+    }
+  ],
+  "verifier": {
+    "passed": true,
+    "failure_category": null
+  },
+  "metrics": {
+    "expected_state_digest": "d0765f73cd5d1df39be353d538ea7c47a017d66a8bd001dc4707240dbb71e58c",
+    "expected_report_digest": "76f1805001bc4f155c8efa5651c57c4f1858af1f6786cbe4596214a4b64375a6"
+  }
+}

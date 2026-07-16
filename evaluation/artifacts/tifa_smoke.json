@@ -1,0 +1,49 @@
+{
+  "project": "Tifa",
+  "benchmark": "offline-replay-smoke",
+  "dataset_version": "pico-offline-fixtures-v1",
+  "result_kind": "measured",
+  "implementation_status": "integrated",
+  "git_commit": "unversioned",
+  "command": "tifa benchmark replay --mode smoke",
+  "case_count": 12,
+  "repetitions": 1,
+  "seed": 20260714,
+  "metrics": {
+    "offline_replay_consistency_rate": 1.0,
+    "verifier_reproduction_rate": 1.0,
+    "artifact_digest_match_rate": 1.0,
+    "report_reconstruction_rate": 1.0,
+    "mean_replay_duration_ms": 0.4501833338205567,
+    "p95_replay_duration_ms": 0.5029000003560213,
+    "failure_type_distribution": {
+      "none": 10,
+      "interrupted_partial_state": 1,
+      "policy_denied": 1
+    },
+    "planned_fixture_count": 24,
+    "executed_fixture_count": 12,
+    "unimplemented_fixture_count": 12,
+    "experimental_groups": {
+      "offline_replay": "MEASURED",
+      "replay_only": "NOT_IMPLEMENTED",
+      "verified_case_assisted": "NOT_IMPLEMENTED",
+      "irrelevant_case_injected": "NOT_IMPLEMENTED"
+    },
+    "case_assistance_delta": "NOT_IMPLEMENTED",
+    "checkpoint_reexecution_rate": "NOT_IMPLEMENTED",
+    "forked_replay": "NOT_IMPLEMENTED",
+    "counterfactual_replay": "NOT_IMPLEMENTED"
+  },
+  "limitations": [
+    "仅验证 12 个历史 Pico Offline Replay fixture",
+    "full 的 case_count=24 是规划矩阵规模，executed_fixture_count 才是实际执行数",
+    "确定性 fixture 不代表真实模型任务成功率",
+    "Forked、Counterfactual 与案例辅助尚未实现"
+  ],
+  "environment": {
+    "python": "3.12.5",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "generated_at": "2026-07-15T23:53:25.735220+00:00"
+}

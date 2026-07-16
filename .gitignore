@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.tifa/
+evaluation/artifacts/*.json
+!evaluation/artifacts/.gitkeep
+!evaluation/artifacts/tifa_smoke.json
+!evaluation/artifacts/tifa_smoke_cases.json
+!evaluation/artifacts/tifa_full.json
+!evaluation/artifacts/tifa_full_cases.json
