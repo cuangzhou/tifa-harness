@@ -13,6 +13,45 @@ READ_ONLY = {"list_files", "read_file", "search", "delegate"}
 HIGH_RISK = {"run_shell", "write_file", "patch_file"}
 
 
+class ToolArgumentError(ValueError):
+    """A field-level tool schema violation that the model may repair."""
+
+
+def validate_tool_arguments(name: str, args: dict[str, Any]) -> None:
+    if name not in SPECS:
+        raise ToolArgumentError(f"tool={name}: unknown tool")
+    if not isinstance(args, dict):
+        raise ToolArgumentError(f"tool={name}: arguments must be an object")
+    schema = SPECS[name]["function"]["parameters"]
+    properties = schema["properties"]
+    missing = [field for field in schema.get("required", []) if field not in args]
+    extra = [field for field in args if field not in properties]
+    errors: list[str] = []
+    if missing: errors.append(f"missing required fields: {', '.join(missing)}")
+    if extra: errors.append(f"unknown fields: {', '.join(extra)}")
+    python_types: dict[str, type[Any] | tuple[type[Any], ...]] = {
+        "string": str,
+        "integer": int,
+        "boolean": bool,
+        "number": (int, float),
+        "object": dict,
+        "array": list,
+    }
+    for field, value in args.items():
+        spec = properties.get(field)
+        if not spec: continue
+        expected = python_types.get(spec.get("type"))
+        valid = isinstance(value, expected) if expected else True
+        if spec.get("type") in {"integer", "number"} and isinstance(value, bool): valid = False
+        if not valid:
+            errors.append(f"field {field} must be {spec.get('type')}")
+            continue
+        if "minimum" in spec and value < spec["minimum"]: errors.append(f"field {field} must be >= {spec['minimum']}")
+        if "maximum" in spec and value > spec["maximum"]: errors.append(f"field {field} must be <= {spec['maximum']}")
+    if errors:
+        raise ToolArgumentError(f"tool={name}: " + "; ".join(errors))
+
+
 def tool_spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
     return {"type": "function", "function": {"name": name, "description": description, "parameters": {"type": "object", "properties": properties, "required": required, "additionalProperties": False}}}
 
@@ -21,7 +60,7 @@ SPECS = {
     "list_files": tool_spec("list_files", "List files under a workspace directory", {"path": {"type": "string"}, "recursive": {"type": "boolean"}}, ["path"]),
     "read_file": tool_spec("read_file", "Read a UTF-8 text file", {"path": {"type": "string"}, "start": {"type": "integer"}, "end": {"type": "integer"}}, ["path"]),
     "search": tool_spec("search", "Search text in workspace files", {"pattern": {"type": "string"}, "path": {"type": "string"}}, ["pattern"]),
-    "run_shell": tool_spec("run_shell", "Run a command in the workspace", {"command": {"type": "string"}, "timeout": {"type": "integer", "minimum": 1, "maximum": 120}}, ["command"]),
+    "run_shell": tool_spec("run_shell", "Run one executable directly in the workspace (already the current directory); cd, &&, pipes, and redirection are disabled", {"command": {"type": "string"}, "timeout": {"type": "integer", "minimum": 1, "maximum": 120}}, ["command"]),
     "write_file": tool_spec("write_file", "Write a UTF-8 file", {"path": {"type": "string"}, "content": {"type": "string"}}, ["path", "content"]),
     "patch_file": tool_spec("patch_file", "Replace one unique text occurrence", {"path": {"type": "string"}, "old_text": {"type": "string"}, "new_text": {"type": "string"}}, ["path", "old_text", "new_text"]),
     "delegate": tool_spec("delegate", "Run a bounded read-only investigation", {"task": {"type": "string"}, "max_steps": {"type": "integer", "minimum": 1, "maximum": 3}}, ["task"]),
@@ -72,6 +111,7 @@ class ToolRegistry:
     def run(self, name: str, args: dict[str, Any]) -> tuple[str, list[str]]:
         if name not in self.names:
             raise ValueError(f"unknown or unavailable tool: {name}")
+        validate_tool_arguments(name, args)
         self._approve(name, args)
         affected: list[str] = []
         if name == "list_files":

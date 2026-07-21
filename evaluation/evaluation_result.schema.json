@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tifa.local/schemas/evaluation-result.v2.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "track", "suite", "provenance", "execution", "sampling", "cases", "metrics", "decision", "limitations", "generated_at", "manifest_digest"],
+  "properties": {
+    "schema_version": {"const": "tifa-evaluation-result.v2"},
+    "status": {"enum": ["measured", "not_run", "invalid"]},
+    "track": {"enum": ["regression", "capability", "real_repo"]},
+    "suite": {"type": "object"}, "provenance": {"type": "object"},
+    "execution": {"type": "object"}, "sampling": {"type": "object"},
+    "cases": {"type": "array", "items": {"type": "object"}},
+    "metrics": {"type": "object"}, "decision": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "manifest_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

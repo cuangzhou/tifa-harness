@@ -15,3 +15,12 @@ evaluation/artifacts/*.json
 !evaluation/artifacts/tifa_full_cases.json
 !evaluation/artifacts/workspace-performance.json
 !evaluation/artifacts/measured-live/*.json
+# Keep public summary artifacts, not transient process files or per-run traces.
+evaluation/artifacts/**/*.runs/
+evaluation/artifacts/**/*.pid
+evaluation/artifacts/**/*.log
+# Local exploratory evaluation variants; publish only explicitly selected summaries.
+evaluation/artifacts/harness-ab/
+evaluation/artifacts/measured-live/deepseek-v4-flash-current-*
+evaluation/artifacts/measured-live/deepseek-v4-flash-fixed-*
+evaluation/artifacts/measured-live/deepseek-v4-flash-compat-1.json

@@ -61,7 +61,8 @@ class ContextManager:
                 floor = DEFAULT_SECTION_FLOORS[key]
                 if len(sections[key]) > floor:
                     before = len(sections[key])
-                    sections[key] = sections[key][-max(floor, int(before * 0.75)):]
+                    retained = max(floor, int(before * 0.75))
+                    sections[key] = sections[key][:retained] if key == "prefix" else sections[key][-retained:]
                     reductions.append({"section": key, "before": before, "after": len(sections[key])})
                     changed = True
                     break

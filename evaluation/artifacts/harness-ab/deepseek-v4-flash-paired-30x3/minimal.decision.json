@@ -1,0 +1,14 @@
+{
+  "passed": false,
+  "status": "failed",
+  "reasons": [
+    "recovery_scenario_below_threshold"
+  ],
+  "thresholds": {
+    "pass_rate": 0.8,
+    "max_regression": 0.05,
+    "recovery": 0.9,
+    "duplicate_side_effect_rate": 0.0,
+    "infrastructure_failure_rate": 0.0
+  }
+}

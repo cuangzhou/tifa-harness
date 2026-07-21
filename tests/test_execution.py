@@ -16,6 +16,11 @@ def test_command_argv_rejects_implicit_shell():
     with pytest.raises(ValueError): command_argv("echo ok && echo unsafe")
 
 
+def test_command_argv_allows_operators_inside_quoted_argument():
+    argv = command_argv('python -c "value = 1; assert value < 2; print(value)"')
+    assert argv == ["python", "-c", "value = 1; assert value < 2; print(value)"]
+
+
 @pytest.mark.skipif(os.getenv("TIFA_TEST_DOCKER") != "1", reason="set TIFA_TEST_DOCKER=1 for Docker integration")
 def test_docker_backend_non_root_read_only_and_cleanup(tmp_path):
     backend = DockerExecutionBackend()
