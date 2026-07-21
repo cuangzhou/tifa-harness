@@ -1,6 +1,6 @@
 # Tifa
 
-Tifa is a verifiable local coding-agent harness for Python 3.11+. Version 0.5 adds task contracts, verifier-gated completion, bounded repair, semantic code indexing, hardened local execution, durable recovery, replay, and professional evaluation contracts.
+Tifa is a verifiable local coding-agent harness for Python 3.11+. Adds task contracts, verifier-gated completion, bounded repair, semantic code indexing, hardened local execution, durable recovery, replay, and professional evaluation contracts.
 
 ## Quick start
 
