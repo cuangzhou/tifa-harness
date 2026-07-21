@@ -64,9 +64,31 @@ def command_argv(command: str, allow_shell: bool = False) -> list[str]:
     if not command.strip(): raise ValueError("command cannot be empty")
     if allow_shell:
         return (["powershell", "-NoProfile", "-NonInteractive", "-Command", command] if os.name == "nt" else ["/bin/sh", "-lc", command])
-    forbidden = ("|", ">", "<", "&&", ";", "`", "$(")
-    if any(token in command for token in forbidden): raise ValueError("shell syntax requires allow_shell=true")
-    return shlex.split(command, posix=os.name != "nt")
+    # Reject shell control syntax only outside quoted argv values. Python
+    # snippets often contain semicolons or comparisons inside `python -c`.
+    quote: str | None = None
+    escaped = False
+    index = 0
+    while index < len(command):
+        char = command[index]
+        if escaped:
+            escaped = False
+        elif char == "\\" and quote:
+            escaped = True
+        elif quote:
+            if char == quote:
+                quote = None
+        elif char in {"'", '"'}:
+            quote = char
+        elif char in {"|", ">", "<", ";", "`"} or command.startswith(("&&", "$("), index):
+            raise ValueError(
+                "shell operators are disabled; the command already runs in the workspace. "
+                "Invoke one executable directly, for example: python tests/test_value.py"
+            )
+        index += 1
+    if quote:
+        raise ValueError("unterminated quote in command")
+    return shlex.split(command, posix=True)
 
 
 class LocalExecutionBackend:
@@ -89,6 +111,9 @@ class LocalExecutionBackend:
 class DockerExecutionBackend:
     name = "docker"
     def __init__(self, image: str = "tifa-runner:0.5.0") -> None: self.image = image
+    def available(self) -> bool:
+        """Return true only when the daemon is reachable and the runner image exists."""
+        return self._digest() is not None
     def _digest(self) -> str | None:
         try:
             image_id = subprocess.check_output(["docker", "image", "inspect", self.image, "--format", "{{.Id}}"], text=True, stderr=subprocess.DEVNULL, timeout=5).strip()

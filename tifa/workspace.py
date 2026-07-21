@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import difflib
 from typing import Any
 
 
@@ -55,6 +56,8 @@ class WorkspaceContext:
     documents: dict[str, str]
     index: dict[str, dict[str, Any]] = field(default_factory=dict)
     stats: dict[str, Any] = field(default_factory=dict)
+    normalized_path_count: int = 0
+    normalize_paths: bool = True
 
     @classmethod
     def build(cls, root: str | Path) -> "WorkspaceContext":
@@ -91,8 +94,33 @@ class WorkspaceContext:
         return f"Repository: {self.repo_root}\nBranch: {self.branch or 'unknown'}\nGit status:\n{self.status or 'clean/unknown'}\nIndexed files: {self.stats.get('file_count', 0)}\n\n{docs}"
 
     def resolve(self, value: str, *, must_exist: bool = False) -> Path:
-        candidate = (self.repo_root / value).resolve()
+        original = str(value)
+        if not self.normalize_paths:
+            if "\\" in original or original.startswith("/workspace") or Path(original).is_absolute():
+                raise ValueError("path must be a POSIX-style workspace-relative path")
+            candidate = (self.repo_root / original).resolve()
+            try: candidate.relative_to(self.repo_root)
+            except ValueError as exc: raise ValueError("path escapes workspace") from exc
+            if must_exist and not candidate.exists():
+                raise ValueError(f"path does not exist: {value}")
+            return candidate
+        normalized = original.replace("\\", "/").strip()
+        if normalized == "/workspace":
+            normalized = "."
+        elif normalized.startswith("/workspace/"):
+            normalized = normalized[len("/workspace/"):]
+        raw_path = Path(normalized)
+        if raw_path.is_absolute():
+            candidate = raw_path.resolve()
+        else:
+            candidate = (self.repo_root / raw_path).resolve()
         try: candidate.relative_to(self.repo_root)
         except ValueError as exc: raise ValueError("path escapes workspace") from exc
-        if must_exist and not candidate.exists(): raise ValueError(f"path does not exist: {value}")
+        canonical = candidate.relative_to(self.repo_root).as_posix() if candidate != self.repo_root else "."
+        if original != canonical:
+            self.normalized_path_count += 1
+        if must_exist and not candidate.exists():
+            choices = difflib.get_close_matches(canonical, list(self.index), n=3, cutoff=0.35)
+            hint = f"; close workspace paths: {', '.join(choices)}" if choices else ""
+            raise ValueError(f"path does not exist: {value}{hint}")
         return candidate

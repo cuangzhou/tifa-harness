@@ -1,0 +1,1065 @@
+{
+  "schema_version": "tifa-harness-ab-report.v1",
+  "status": "smoke",
+  "conclusion": "directional_but_statistically_uncertain",
+  "provenance": {
+    "code_version": "93600c35179389cfe3957fedd2dee3496ad69abf",
+    "dirty_worktree": true,
+    "provider": "openai",
+    "model": "deepseek-v4-flash",
+    "invariant_config_digest": "281f8a2c71e854446845f3553ab97d6eac15b4ac986fee68a3cce2b979010b44",
+    "backend": {
+      "backend": "docker",
+      "isolation_level": "container_strong",
+      "runner_image": "tifa-runner:0.5.0",
+      "runner_image_digest": "tifa-runner@sha256:8b1f858a87b5fbc49b7572cb378b8071ac7b5b72a039785e947d506f0dcfcda9"
+    }
+  },
+  "comparison": {
+    "schema_version": "tifa-harness-comparison.v1",
+    "comparable": true,
+    "status": "smoke",
+    "mismatch_reasons": [],
+    "paired_cases": 90,
+    "evaluable_pairs": 90,
+    "excluded_infrastructure_pairs": [],
+    "both_passed": 77,
+    "full_only": 5,
+    "minimal_only": 3,
+    "both_failed": 5,
+    "minimal_pass_rate": 0.8888888888888888,
+    "full_pass_rate": 0.9111111111111111,
+    "full_minus_minimal": 0.022222222222222223,
+    "cluster_bootstrap_ci95": [
+      -0.03333333333333333,
+      0.08888888888888888
+    ],
+    "mcnemar_exact_p": 0.7265625,
+    "safety": {
+      "minimal_duplicate_side_effects": 0,
+      "full_duplicate_side_effects": 0,
+      "minimal_security_violations": 0,
+      "full_security_violations": 0,
+      "minimal_security_events_observed": 36,
+      "full_security_events_observed": 38
+    },
+    "efficiency": {
+      "minimal": {
+        "input_tokens": {
+          "mean": 4218.433333333333,
+          "p50": 3315.5,
+          "p95": 10637.0
+        },
+        "output_tokens": {
+          "mean": 427.81111111111113,
+          "p50": 301.5,
+          "p95": 978.0
+        },
+        "duration_ms": {
+          "mean": 9195.403976666754,
+          "p50": 7780.779600000187,
+          "p95": 18696.606899999097
+        },
+        "model_calls": {
+          "mean": 4.011111111111111,
+          "p50": 4.0,
+          "p95": 8.0
+        },
+        "tool_calls": {
+          "mean": 4.566666666666666,
+          "p50": 3.0,
+          "p95": 10.0
+        }
+      },
+      "full": {
+        "input_tokens": {
+          "mean": 2985.0,
+          "p50": 2091.0,
+          "p95": 9346.0
+        },
+        "output_tokens": {
+          "mean": 331.76666666666665,
+          "p50": 240.5,
+          "p95": 834.0
+        },
+        "duration_ms": {
+          "mean": 14827.284670000043,
+          "p50": 10564.008100000137,
+          "p95": 39318.72680000015
+        },
+        "model_calls": {
+          "mean": 2.9444444444444446,
+          "p50": 2.0,
+          "p95": 8.0
+        },
+        "tool_calls": {
+          "mean": 3.911111111111111,
+          "p50": 3.0,
+          "p95": 10.0
+        }
+      }
+    },
+    "invariant_config_digest": "281f8a2c71e854446845f3553ab97d6eac15b4ac986fee68a3cce2b979010b44",
+    "claim_gate": {
+      "infrastructure_failure_at_most_2pct": true,
+      "no_duplicate_or_security_regression": true,
+      "positive_delta": true,
+      "ci_lower_above_zero": false
+    }
+  },
+  "variants": {
+    "minimal": {
+      "strict_pass_rate": 0.8888888888888888,
+      "strict_pass_rate_ci95": [
+        0.8074221497873896,
+        0.9385168081070228
+      ],
+      "infrastructure_adjusted_pass_rate": 0.8888888888888888,
+      "infrastructure_failure_rate": 0.0,
+      "duplicate_side_effect_rate": 0.0,
+      "scenario_success_rate": 0.8888888888888888,
+      "repair_recovery_rate": null,
+      "provider_retry_recovery_rate": null,
+      "executed_case_count": 90,
+      "failure_distribution": {
+        "path_error": 6,
+        "step_limit_reached": 1,
+        "invalid_arguments": 3
+      },
+      "failure_taxonomy_distribution": {
+        "unknown": 6,
+        "budget": 1,
+        "argument_generation": 3
+      },
+      "category_results": {
+        "checkpoint_resume": {
+          "executed": 12,
+          "passed": 12,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.7575059933447591,
+            1.0
+          ]
+        },
+        "cross_file": {
+          "executed": 12,
+          "passed": 10,
+          "pass_rate": 0.8333333333333334,
+          "ci95": [
+            0.5519691377470266,
+            0.9530348578161463
+          ]
+        },
+        "duplicate_side_effect": {
+          "executed": 12,
+          "passed": 12,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.7575059933447591,
+            1.0
+          ]
+        },
+        "irrelevant_context": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "locate_explain": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "single_file": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "test_repair": {
+          "executed": 9,
+          "passed": 2,
+          "pass_rate": 0.2222222222222222,
+          "ci95": [
+            0.06322510711784671,
+            0.5474110308930111
+          ]
+        },
+        "tool_recovery": {
+          "executed": 9,
+          "passed": 8,
+          "pass_rate": 0.8888888888888888,
+          "ci95": [
+            0.5650002944233439,
+            0.980109112361455
+          ]
+        },
+        "verifier_security": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        }
+      },
+      "total_input_tokens": 379659,
+      "total_output_tokens": 38503,
+      "duration_mean_ms": 9195.403976666754,
+      "duration_p50_ms": 7780.779600000187,
+      "duration_p95_ms": 18696.606899999097,
+      "mean_model_calls": 4.011111111111111,
+      "mean_tool_calls": 4.566666666666666
+    },
+    "full": {
+      "strict_pass_rate": 0.9111111111111111,
+      "strict_pass_rate_ci95": [
+        0.8342945337394592,
+        0.9542695074632055
+      ],
+      "infrastructure_adjusted_pass_rate": 0.9111111111111111,
+      "infrastructure_failure_rate": 0.0,
+      "duplicate_side_effect_rate": 0.0,
+      "scenario_success_rate": 1.0,
+      "repair_recovery_rate": 0.6363636363636364,
+      "provider_retry_recovery_rate": null,
+      "executed_case_count": 90,
+      "failure_distribution": {
+        "invalid_arguments": 7,
+        "path_error": 1
+      },
+      "failure_taxonomy_distribution": {
+        "argument_generation": 7,
+        "unknown": 1
+      },
+      "category_results": {
+        "checkpoint_resume": {
+          "executed": 12,
+          "passed": 12,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.7575059933447591,
+            1.0
+          ]
+        },
+        "cross_file": {
+          "executed": 12,
+          "passed": 8,
+          "pass_rate": 0.6666666666666666,
+          "ci95": [
+            0.39062208887279953,
+            0.8618799089087867
+          ]
+        },
+        "duplicate_side_effect": {
+          "executed": 12,
+          "passed": 12,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.7575059933447591,
+            1.0
+          ]
+        },
+        "irrelevant_context": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "locate_explain": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "single_file": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "test_repair": {
+          "executed": 9,
+          "passed": 5,
+          "pass_rate": 0.5555555555555556,
+          "ci95": [
+            0.26665129349549305,
+            0.8112214789023354
+          ]
+        },
+        "tool_recovery": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        },
+        "verifier_security": {
+          "executed": 9,
+          "passed": 9,
+          "pass_rate": 1.0,
+          "ci95": [
+            0.700854951580456,
+            1.0
+          ]
+        }
+      },
+      "total_input_tokens": 268650,
+      "total_output_tokens": 29859,
+      "duration_mean_ms": 14827.284670000043,
+      "duration_p50_ms": 10564.008100000137,
+      "duration_p95_ms": 39318.72680000015,
+      "mean_model_calls": 2.9444444444444446,
+      "mean_tool_calls": 3.911111111111111
+    }
+  },
+  "ablations": {},
+  "order": [
+    {
+      "task_id": "checkpoint_resume-005",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "cross_file-013",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-002",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-007",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-014",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-010",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-004",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-002",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-009",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-002",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-001",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-018",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-004",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-007",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-004",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-015",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-003",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-004",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "locate_explain-010",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-016",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-015",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-003",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-005",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-003",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-001",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-004",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-005",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "cross_file-013",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-002",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "locate_explain-007",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-014",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "test_repair-001",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-010",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-002",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-009",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-002",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-001",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-018",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "test_repair-004",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-007",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-015",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-003",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-010",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-016",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-015",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-003",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-005",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-003",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-005",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-013",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-002",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-007",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-014",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-010",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-002",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "cross_file-009",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-002",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-018",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "test_repair-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-007",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-001",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-015",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-003",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-010",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-016",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-015",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-003",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-005",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-003",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-001",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    }
+  ],
+  "limitations": [
+    "Historical artifacts are descriptive only and are not used as the minimal baseline.",
+    "This result is not release-grade when status is smoke or backend is local_degraded."
+  ]
+}

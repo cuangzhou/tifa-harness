@@ -26,6 +26,27 @@ jobs:
         if: runner.os == 'Linux'
       - run: tifa --help
 
+  evaluation-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -e ".[test]"
+      - run: python -m tifa benchmark replay --mode full --output "${{ runner.temp }}/regression.json"
+      - run: python -m tifa benchmark replay --mode innovation --output "${{ runner.temp }}/innovation.json"
+      - run: python -m tifa benchmark context --output "${{ runner.temp }}/context.json"
+      - run: python -m pytest tests/test_evaluation_v2.py tests/test_replay.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-regression-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/regression*.json
+            ${{ runner.temp }}/innovation*.json
+            ${{ runner.temp }}/context*.json
+
   docker:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,92 @@
+{
+  "schema_version": "tifa-harness-comparison.v1",
+  "comparable": true,
+  "status": "smoke",
+  "mismatch_reasons": [],
+  "paired_cases": 90,
+  "evaluable_pairs": 90,
+  "excluded_infrastructure_pairs": [],
+  "both_passed": 77,
+  "full_only": 5,
+  "minimal_only": 3,
+  "both_failed": 5,
+  "minimal_pass_rate": 0.8888888888888888,
+  "full_pass_rate": 0.9111111111111111,
+  "full_minus_minimal": 0.022222222222222223,
+  "cluster_bootstrap_ci95": [
+    -0.03333333333333333,
+    0.08888888888888888
+  ],
+  "mcnemar_exact_p": 0.7265625,
+  "safety": {
+    "minimal_duplicate_side_effects": 0,
+    "full_duplicate_side_effects": 0,
+    "minimal_security_violations": 0,
+    "full_security_violations": 0,
+    "minimal_security_events_observed": 36,
+    "full_security_events_observed": 38
+  },
+  "efficiency": {
+    "minimal": {
+      "input_tokens": {
+        "mean": 4218.433333333333,
+        "p50": 3315.5,
+        "p95": 10637.0
+      },
+      "output_tokens": {
+        "mean": 427.81111111111113,
+        "p50": 301.5,
+        "p95": 978.0
+      },
+      "duration_ms": {
+        "mean": 9195.403976666754,
+        "p50": 7780.779600000187,
+        "p95": 18696.606899999097
+      },
+      "model_calls": {
+        "mean": 4.011111111111111,
+        "p50": 4.0,
+        "p95": 8.0
+      },
+      "tool_calls": {
+        "mean": 4.566666666666666,
+        "p50": 3.0,
+        "p95": 10.0
+      }
+    },
+    "full": {
+      "input_tokens": {
+        "mean": 2985.0,
+        "p50": 2091.0,
+        "p95": 9346.0
+      },
+      "output_tokens": {
+        "mean": 331.76666666666665,
+        "p50": 240.5,
+        "p95": 834.0
+      },
+      "duration_ms": {
+        "mean": 14827.284670000043,
+        "p50": 10564.008100000137,
+        "p95": 39318.72680000015
+      },
+      "model_calls": {
+        "mean": 2.9444444444444446,
+        "p50": 2.0,
+        "p95": 8.0
+      },
+      "tool_calls": {
+        "mean": 3.911111111111111,
+        "p50": 3.0,
+        "p95": 10.0
+      }
+    }
+  },
+  "invariant_config_digest": "281f8a2c71e854446845f3553ab97d6eac15b4ac986fee68a3cce2b979010b44",
+  "claim_gate": {
+    "infrastructure_failure_at_most_2pct": true,
+    "no_duplicate_or_security_regression": true,
+    "positive_delta": true,
+    "ci_lower_above_zero": false
+  }
+}

@@ -1,28 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tifa.local/schemas/case-card.v1.json",
-  "title": "Tifa CaseCard v1",
+  "$id": "https://tifa.local/schemas/case-card.v2.json",
+  "title": "Tifa CaseCard v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "case_id", "task_signature", "failure_signature", "minimal_delta", "evidence_refs", "verification_status", "applicability"],
+  "required": ["schema_version", "case_id", "task_signature", "failure_signature", "minimal_delta", "evidence_refs", "verification_status", "applicability", "source_run_id", "freshness_status", "stale_reasons", "review_status"],
   "properties": {
-    "schema_version": {"const": "case-card.v1"},
-    "case_id": {"type": "string"},
-    "task_signature": {"type": "object", "required": ["category", "tool_pattern"], "additionalProperties": true},
-    "failure_signature": {"type": "object", "required": ["category", "stop_reason"], "additionalProperties": true},
-    "minimal_delta": {
-      "type": "object",
-      "required": ["variable", "before", "after"],
-      "properties": {"variable": {"type": "string"}, "before": {}, "after": {}},
-      "additionalProperties": false
-    },
+    "schema_version": {"const": "case-card.v2"}, "case_id": {"type": "string"},
+    "task_signature": {"type": "object"}, "failure_signature": {"type": "object"}, "minimal_delta": {"type": "object"},
     "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
-    "verification_status": {"enum": ["candidate", "verified", "rejected", "superseded"]},
-    "verification_run_id": {"type": ["string", "null"]},
-    "applicability": {"type": "object", "required": ["allowed_categories", "excluded_conditions"], "additionalProperties": true},
-    "summary": {"type": "string", "maxLength": 1200},
-    "created_at": {"type": "string", "format": "date-time"},
-    "expires_at": {"type": ["string", "null"], "format": "date-time"},
-    "supersedes": {"type": ["string", "null"]}
+    "verification_status": {"enum": ["candidate", "verified", "rejected", "superseded"]}, "verification_run_id": {"type": ["string", "null"]},
+    "applicability": {"type": "object"}, "summary": {"type": "string", "maxLength": 1200}, "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": ["string", "null"], "format": "date-time"}, "supersedes": {"type": ["string", "null"]}, "source_run_id": {"type": ["string", "null"]},
+    "repo_snapshot": {"type": ["string", "null"]}, "dependency_digests": {"type": "object", "additionalProperties": {"type": "string"}},
+    "tool_schema_digest": {"type": ["string", "null"]}, "context_policy_version": {"type": ["string", "null"]}, "suggested_override": {"type": "object"},
+    "review_status": {"enum": ["ready", "needs_review", "legacy_review_required"]}, "freshness_status": {"enum": ["unknown", "fresh", "stale"]},
+    "stale_reasons": {"type": "array", "items": {"type": "string"}}, "verification": {"type": ["object", "null"]}, "rejection_reason": {"type": ["string", "null"]}
   }
 }

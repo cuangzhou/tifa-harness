@@ -38,9 +38,11 @@ class FakeModelClient:
         self.outputs = list(outputs or ["<final>FakeModel completed the request.</final>"])
         self.model = model
         self.prompts: list[str] = []
+        self.calls: list[dict[str, Any]] = []
 
     def complete(self, prompt: str, tools: list[dict[str, Any]], cache_key: str | None = None, messages: list[dict[str, Any]] | None = None) -> ModelResponse:
         self.prompts.append(prompt)
+        self.calls.append({"prompt": prompt, "tools": tools, "cache_key": cache_key, "messages": list(messages or [])})
         output = self.outputs.pop(0) if self.outputs else "<final>No scripted output remains.</final>"
         if isinstance(output, ModelResponse): return output
         return ModelResponse(output, usage={"input_estimate": len(prompt) // 4, "output_estimate": len(output) // 4}, cache={"cache_key": cache_key})

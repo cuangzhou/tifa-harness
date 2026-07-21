@@ -1,0 +1,788 @@
+{
+  "suite": {
+    "name": "professional",
+    "version": "v2",
+    "task_count": 30,
+    "task_manifest_digest": "4c5107f6cca3946824f8a380995bfe3934ace81bee5e63d7985aaf0f13afa341"
+  },
+  "provenance": {
+    "project": "Tifa",
+    "code_version": "93600c35179389cfe3957fedd2dee3496ad69abf",
+    "dirty_worktree": true,
+    "provider": "openai",
+    "model": "deepseek-v4-flash",
+    "variant": "full",
+    "treatment_config_digest": "3e94e263c1cb5683eef5bb3b843124a8407902b6a1f425c665f73f3ff395e9de"
+  },
+  "execution": {
+    "backend": "docker",
+    "isolation_level": "container_strong",
+    "runner_image": "tifa-runner:0.5.0",
+    "runner_image_digest": "tifa-runner@sha256:8b1f858a87b5fbc49b7572cb378b8071ac7b5b72a039785e947d506f0dcfcda9",
+    "temperature": 0,
+    "budget": {
+      "model_calls": 14,
+      "tool_calls": 10,
+      "duration_seconds": 300
+    },
+    "invariant_config_digest": "281f8a2c71e854446845f3553ab97d6eac15b4ac986fee68a3cce2b979010b44"
+  },
+  "sampling": {
+    "seed": 20260721,
+    "repetitions": 3,
+    "selected_task_ids": [
+      "checkpoint_resume-002",
+      "checkpoint_resume-003",
+      "checkpoint_resume-004",
+      "checkpoint_resume-005",
+      "cross_file-001",
+      "cross_file-009",
+      "cross_file-013",
+      "cross_file-015",
+      "duplicate_side_effect-001",
+      "duplicate_side_effect-002",
+      "duplicate_side_effect-003",
+      "duplicate_side_effect-004",
+      "irrelevant_context-001",
+      "irrelevant_context-002",
+      "irrelevant_context-004",
+      "locate_explain-001",
+      "locate_explain-007",
+      "locate_explain-010",
+      "single_file-014",
+      "single_file-016",
+      "single_file-018",
+      "test_repair-001",
+      "test_repair-004",
+      "test_repair-015",
+      "tool_recovery-003",
+      "tool_recovery-007",
+      "tool_recovery-010",
+      "verifier_security-001",
+      "verifier_security-004",
+      "verifier_security-005"
+    ]
+  },
+  "order": [
+    {
+      "task_id": "checkpoint_resume-005",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "cross_file-013",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-002",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-007",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-014",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-010",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-004",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-002",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-009",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-002",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-001",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-018",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-004",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-007",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-001",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-004",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-015",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-003",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-004",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "locate_explain-010",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-016",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-015",
+      "repetition": 1,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-003",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-005",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-003",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-001",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-004",
+      "repetition": 1,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-005",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "cross_file-013",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-002",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "locate_explain-007",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-014",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "test_repair-001",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-010",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-002",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-009",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-002",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-001",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-018",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "test_repair-004",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-007",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-015",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-003",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-010",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-016",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-015",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-003",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-005",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-003",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-001",
+      "repetition": 2,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-004",
+      "repetition": 2,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-005",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-013",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-002",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-007",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "single_file-014",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-010",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "verifier_security-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-002",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "cross_file-009",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-002",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-001",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-018",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "test_repair-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-007",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-001",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-015",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-003",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "irrelevant_context-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "locate_explain-010",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "single_file-016",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "test_repair-015",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "tool_recovery-003",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "verifier_security-005",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "checkpoint_resume-003",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    },
+    {
+      "task_id": "cross_file-001",
+      "repetition": 3,
+      "order": [
+        "full",
+        "minimal"
+      ]
+    },
+    {
+      "task_id": "duplicate_side_effect-004",
+      "repetition": 3,
+      "order": [
+        "minimal",
+        "full"
+      ]
+    }
+  ]
+}

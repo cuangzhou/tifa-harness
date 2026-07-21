@@ -1,0 +1,18 @@
+{
+  "schema_version": "tifa-real-repo-suite.v1",
+  "status": "not_run",
+  "gate_policy": "informational_until_two_versioned_three-repetition_baselines_exist",
+  "network_policy": "deny",
+  "requirements": {
+    "repository_commit_required": true,
+    "license_allowlist": ["MIT", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0"],
+    "behavioral_verifier_required": true,
+    "gold_patch_equality_required": false
+  },
+  "categories": ["locate_explain", "single_file", "cross_file", "test_repair", "regression_protection"],
+  "tasks": [],
+  "limitations": [
+    "No repository snapshots have been approved and vendored yet, so this track is explicitly NOT_RUN.",
+    "Adding tasks requires a pinned commit, license evidence, offline fixture, allowed paths, and behavioral verifier."
+  ]
+}

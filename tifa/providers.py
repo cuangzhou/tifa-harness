@@ -115,12 +115,12 @@ class _HTTPModelClient:
                     cause: Exception = exc
                 except httpx.HTTPStatusError as exc:
                     status = exc.response.status_code
-                    category = "rate_limit" if status == 429 else "auth" if status in {401, 403} else "transport"
+                    category = "rate_limit" if status == 429 else "auth" if status in {401, 403} else "provider_schema" if status in {400, 422} else "transport"
                     retryable = status == 429 or 500 <= status < 600
                     retry_after = _retry_after(exc.response.headers)
                     cause = exc
                 except httpx.HTTPError as exc:
-                    category, retryable, retry_after, cause = "transport", False, None, exc
+                    category, retryable, retry_after, cause = "transport", isinstance(exc, httpx.TransportError), None, exc
                 except ValueError as exc:
                     raise ProviderError("invalid_response", self.provider) from exc
                 if not retryable or attempts > self.retry_policy.max_retries:
@@ -134,9 +134,13 @@ class _HTTPModelClient:
 class OpenAICompatibleModelClient(_HTTPModelClient):
     provider = "openai-compatible"
 
+    def __init__(self, model: str, base_url: str, api_key: str | None = None, timeout: float = 60, retry_policy: RetryPolicy | None = None, temperature: float = 0) -> None:
+        super().__init__(model, base_url, api_key, timeout, retry_policy)
+        self.temperature = temperature
+
     def complete(self, prompt: str, tools: list[dict[str, Any]], cache_key: str | None = None, messages: list[dict[str, Any]] | None = None) -> ModelResponse:
         headers = {"authorization": f"Bearer {self.api_key}"} if self.api_key else {}
-        data = self._post("/chat/completions", {"model": self.model, "messages": _openai_messages(messages, prompt), "tools": tools}, headers)
+        data = self._post("/chat/completions", {"model": self.model, "messages": _openai_messages(messages, prompt), "tools": tools, "temperature": self.temperature}, headers)
         try:
             message = data["choices"][0]["message"]
             calls = [ToolCall(str(c["id"]), c["function"]["name"], json.loads(c["function"].get("arguments") or "{}")) for c in message.get("tool_calls", [])]
@@ -176,7 +180,7 @@ class OllamaModelClient(_HTTPModelClient):
 
 def create_model_client(provider: str, model: str | None = None):
     if provider == "openai":
-        return OpenAICompatibleModelClient(model or os.getenv("OPENAI_MODEL") or "gpt-4.1-mini", os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1", os.getenv("OPENAI_API_KEY"))
+        return OpenAICompatibleModelClient(model or os.getenv("OPENAI_MODEL") or "gpt-4.1-mini", os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1", os.getenv("OPENAI_API_KEY"), temperature=0)
     if provider == "anthropic":
         return AnthropicCompatibleModelClient(model or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-20250514", os.getenv("ANTHROPIC_BASE_URL") or "https://api.anthropic.com/v1", os.getenv("ANTHROPIC_API_KEY"))
     if provider == "ollama":

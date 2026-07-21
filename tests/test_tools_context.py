@@ -8,6 +8,23 @@ from tifa.tools import ToolRegistry
 from tifa.workspace import WorkspaceContext
 
 
+def test_workspace_path_normalization_and_escape_protection(tmp_path: Path):
+    target = tmp_path / "src" / "a.py"; target.parent.mkdir(); target.write_text("x", encoding="utf-8")
+    workspace = WorkspaceContext.build(tmp_path)
+    assert workspace.resolve("/workspace/src/a.py", must_exist=True) == target
+    assert workspace.resolve("src\\a.py", must_exist=True) == target
+    assert workspace.resolve(str(target), must_exist=True) == target
+    with pytest.raises(ValueError, match="escapes workspace"):
+        workspace.resolve("../outside.txt")
+
+
+def test_missing_path_returns_safe_workspace_candidates(tmp_path: Path):
+    target = tmp_path / "src" / "service.py"; target.parent.mkdir(); target.write_text("x", encoding="utf-8")
+    workspace = WorkspaceContext.build(tmp_path)
+    with pytest.raises(ValueError, match="close workspace paths: src/service.py"):
+        workspace.resolve("src/servce.py", must_exist=True)
+
+
 def registry(tmp_path: Path, **kwargs):
     return ToolRegistry(WorkspaceContext.build(tmp_path), **kwargs)
 

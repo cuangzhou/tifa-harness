@@ -1,0 +1,30 @@
+{
+  "schema_version": "tifa-evaluation-baselines.v1",
+  "baselines": [
+    {
+      "id": "qwen25-coder-3b-30-v050",
+      "artifact": "artifacts/measured-live/professional-ollama-30-v0.5.0.json",
+      "status": "legacy_measured",
+      "model": "qwen2.5-coder:3b",
+      "code_version": "9b1b4a06f2fd2d005808a20f39c5fcdfb945e0ee",
+      "executed": 30,
+      "passed": 12,
+      "strict_pass_rate": 0.4,
+      "release_gate_passed": false
+    },
+    {
+      "id": "deepseek-v4-flash-30-smoke",
+      "artifact": "artifacts/measured-live/professional-deepseek-v4-flash-30-smoke.json",
+      "status": "legacy_measured",
+      "model": "deepseek-v4-flash",
+      "code_version": "93600c35179389cfe3957fedd2dee3496ad69abf",
+      "executed": 30,
+      "passed": 19,
+      "strict_pass_rate": 0.6333333333333333,
+      "infrastructure_failures": 1,
+      "duplicate_side_effects": 0,
+      "release_gate_passed": false,
+      "comparison_note": "Same task IDs as the Qwen run, but a different Tifa commit; the 23.33pp difference is descriptive, not a controlled model effect."
+    }
+  ]
+}

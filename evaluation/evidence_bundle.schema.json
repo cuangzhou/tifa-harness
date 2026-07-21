@@ -36,7 +36,8 @@
         "snapshot_id": {"type": "string"},
         "commit": {"type": ["string", "null"]},
         "dirty": {"type": "boolean"},
-        "workspace_digest": {"type": "string"}
+        "workspace_digest": {"type": "string"},
+        "tool_schema_digest": {"type": "string"}
       },
       "additionalProperties": false
     },

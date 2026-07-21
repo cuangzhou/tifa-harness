@@ -11,7 +11,35 @@ permissions:
   attestations: write
 
 jobs:
+  evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      OPENAI_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: test -n "$OPENAI_API_KEY" && test -n "$OPENAI_BASE_URL"
+      - run: python -m pip install -e ".[test]"
+      - run: docker build -t tifa-runner:0.5.0 -f docker/runner.Dockerfile docker
+      - run: python -m tifa eval provider --provider openai --model deepseek-v4-flash --repetitions 3 --output evaluation-release.json
+        continue-on-error: true
+      - run: python -m tifa eval validate evaluation-release.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evaluation-release-${{ github.sha }}
+          retention-days: 90
+          path: evaluation-release*.json
+      - name: Enforce release decision
+        run: python -c "import json,sys; d=json.load(open('evaluation-release.decision.json')); sys.exit(0 if d['passed'] else 1)"
+
   package:
+    needs: evaluation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +48,8 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -e ".[test,release]"
       - run: python -m pytest --cov=tifa --cov-fail-under=85
+      - run: python -m tifa benchmark replay --mode innovation --output innovation.json
+      - run: python -m tifa benchmark context --output context.json
       - run: python -m pip_audit
       - run: python -m build
       - run: cyclonedx-py environment -o sbom.json
@@ -32,6 +62,8 @@ jobs:
           path: |
             dist/*
             sbom.json
+            innovation*.json
+            context.json
 
   image:
     runs-on: ubuntu-latest

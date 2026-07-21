@@ -24,6 +24,17 @@ def workspace_digest(root: Path) -> str:
     return digest(items)
 
 
+SENSITIVE_KEYS = {"content", "text", "answer", "api_key", "authorization", "token", "secret", "password"}
+
+
+def _safe_summary(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: ({"redacted": True, "digest": digest(item), "type": type(item).__name__} if key.lower() in SENSITIVE_KEYS else _safe_summary(item)) for key, item in value.items()}
+    if isinstance(value, list): return [_safe_summary(item) for item in value[:20]]
+    if isinstance(value, str) and len(value) > 160: return {"redacted": True, "digest": digest(value), "type": "str", "length": len(value)}
+    return value
+
+
 @dataclass
 class ReplaySpec:
     source_run_id: str
@@ -141,7 +152,17 @@ class ReplayRunner:
     @staticmethod
     def diff(original: dict[str, Any], replay: dict[str, Any]) -> dict[str, Any]:
         fields = ("context_manifest", "events", "artifacts", "verifier", "metrics", "checkpoints")
-        return {field: {"original": digest(original.get(field)), "replay": digest(replay.get(field))} for field in fields if digest(original.get(field)) != digest(replay.get(field))}
+        result: dict[str, Any] = {field: {"original_digest": digest(original.get(field)), "replay_digest": digest(replay.get(field))} for field in fields if digest(original.get(field)) != digest(replay.get(field))}
+        left_events = {event.get("sequence"): event for event in original.get("events", [])}; right_events = {event.get("sequence"): event for event in replay.get("events", [])}
+        changed_sequences = sorted(sequence for sequence in left_events.keys() | right_events.keys() if left_events.get(sequence) != right_events.get(sequence))
+        if changed_sequences:
+            result.setdefault("events", {}).update({"changed_sequences": changed_sequences, "changes": [{"sequence": sequence, "original": _safe_summary(left_events.get(sequence)), "replay": _safe_summary(right_events.get(sequence))} for sequence in changed_sequences[:20]]})
+        left_context = original.get("context_manifest", {}); right_context = replay.get("context_manifest", {})
+        if digest(left_context) != digest(right_context):
+            result.setdefault("context_manifest", {}).update({"original_selected_ids": [item.get("case_id", item.get("id")) for item in left_context.get("selected_items", []) if isinstance(item, dict)], "replay_selected_ids": [item.get("case_id", item.get("id")) for item in right_context.get("selected_items", []) if isinstance(item, dict)], "original_token_estimate": left_context.get("token_estimate"), "replay_token_estimate": right_context.get("token_estimate")})
+        for label, payload in (("original", original), ("replay", replay)):
+            result.setdefault("summary", {})[label] = {"affected_paths": sorted({path for event in payload.get("events", []) for path in event.get("payload", {}).get("affected_paths", [])}), "verifier": _safe_summary(payload.get("verifier", {})), "provider_usage": _safe_summary(payload.get("metrics", {}).get("provider_usage", [])), "security_events": _safe_summary(payload.get("metrics", {}).get("security_events", [])), "duplicate_side_effects": payload.get("metrics", {}).get("duplicate_side_effects", 0)}
+        return result
 
     def replay_to_file(self, bundle_path: Path, output: Path, mode: str = "offline") -> ReplayDiffReport | ReplayResult:
         result = self.replay(bundle_path, mode); output.parent.mkdir(parents=True, exist_ok=True)

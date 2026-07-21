@@ -51,9 +51,12 @@ def verify_contract(root: Path, spec: dict[str, Any] | None, backend: ExecutionB
         execution = (backend or LocalExecutionBackend()).execute(ExecutionRequest(command_argv(item["command"], bool(item.get("allow_shell", False))), root, limits=limits, policy=ExecutionPolicy()))
         checks.append({"type": "command", "passed": execution.exit_code == int(item.get("exit_code", 0)) and not execution.timed_out, "exit_code": execution.exit_code, "backend": execution.backend, "isolation_level": execution.isolation_level})
     for item in spec.get("assertions", []): checks.append({"type": "assertion", "passed": item.get("actual") == item.get("equals")})
-    changed = affected_paths or []
+    # Run artifacts use portable repository-relative paths.  Tool execution on
+    # Windows may naturally return backslashes, which must not make an otherwise
+    # valid change fail a contract authored with POSIX separators.
+    changed = [str(path).replace("\\", "/").rstrip("/") for path in (affected_paths or [])]
     if spec.get("allowed_changed_paths") is not None:
-        allowed = [str(path).rstrip("/") for path in spec["allowed_changed_paths"]]
+        allowed = [str(path).replace("\\", "/").rstrip("/") for path in spec["allowed_changed_paths"]]
         invalid = [path for path in changed if not any(path == prefix or path.startswith(prefix + "/") for prefix in allowed)]
         checks.append({"type": "changed_paths", "passed": not invalid, "invalid": invalid})
     if spec.get("max_changed_files") is not None: checks.append({"type": "patch_size", "passed": len(set(changed)) <= int(spec["max_changed_files"]), "actual": len(set(changed))})

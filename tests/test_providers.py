@@ -16,6 +16,16 @@ def test_openai_mapping(monkeypatch):
     assert result.content == "ok" and result.usage["prompt_tokens"] == 2
 
 
+def test_openai_request_sends_temperature_zero(monkeypatch):
+    captured = {}
+    def post(*args, **kwargs):
+        captured.update(kwargs["json"])
+        return Response({"choices": [{"message": {"content": "ok"}}]})
+    monkeypatch.setattr(httpx, "post", post)
+    OpenAICompatibleModelClient("m", "http://test", temperature=0).complete("p", [])
+    assert captured["temperature"] == 0
+
+
 def test_anthropic_mapping(monkeypatch):
     monkeypatch.setattr(httpx, "post", lambda *a, **k: Response({"content": [{"type": "text", "text": "ok"}], "usage": {"input_tokens": 2}}))
     result = AnthropicCompatibleModelClient("m", "http://test", "key").complete("p", [])
@@ -80,3 +90,46 @@ def test_auth_is_not_retried(monkeypatch):
     with pytest.raises(ProviderError) as error:
         OpenAICompatibleModelClient("m", "http://test", retry_policy=RetryPolicy(max_retries=3)).complete("p", [])
     assert error.value.category == "auth" and calls == 1
+
+
+def test_transport_error_is_retried_and_telemetry_counts_attempts(monkeypatch):
+    calls = 0
+    def post(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1: raise httpx.ConnectError("reset")
+        return Response({"choices": [{"message": {"content": "ok"}}]})
+    monkeypatch.setattr(httpx, "post", post)
+    client = OpenAICompatibleModelClient("m", "http://test", retry_policy=RetryPolicy(max_retries=2, base_delay=0, jitter=0))
+    result = client.complete("p", [])
+    assert calls == 2 and result.cache["attempts"] == 2
+
+
+def test_server_error_retries_but_bad_request_does_not(monkeypatch):
+    for status, expected_calls in [(503, 2), (400, 1)]:
+        calls = 0
+        request = httpx.Request("POST", "http://test")
+        def post(*args, **kwargs):
+            nonlocal calls
+            calls += 1
+            response = httpx.Response(status, request=request)
+            raise httpx.HTTPStatusError("status", request=request, response=response)
+        monkeypatch.setattr(httpx, "post", post)
+        with pytest.raises(ProviderError):
+            OpenAICompatibleModelClient("m", "http://test", retry_policy=RetryPolicy(max_retries=1, base_delay=0, jitter=0)).complete("p", [])
+        assert calls == expected_calls
+
+
+@pytest.mark.parametrize(("status", "category", "expected_calls"), [(400, "provider_schema", 1), (422, "provider_schema", 1), (429, "rate_limit", 2)])
+def test_provider_status_failure_classification(monkeypatch, status, category, expected_calls):
+    request = httpx.Request("POST", "http://test")
+    calls = 0
+    def post(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        response = httpx.Response(status, request=request)
+        raise httpx.HTTPStatusError("status", request=request, response=response)
+    monkeypatch.setattr(httpx, "post", post)
+    with pytest.raises(ProviderError) as error:
+        OpenAICompatibleModelClient("m", "http://test", retry_policy=RetryPolicy(max_retries=1, base_delay=0, jitter=0)).complete("p", [])
+    assert error.value.category == category and calls == expected_calls
