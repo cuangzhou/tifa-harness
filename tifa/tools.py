@@ -29,7 +29,14 @@ def validate_tool_arguments(name: str, args: dict[str, Any]) -> None:
     errors: list[str] = []
     if missing: errors.append(f"missing required fields: {', '.join(missing)}")
     if extra: errors.append(f"unknown fields: {', '.join(extra)}")
-    python_types = {"string": str, "integer": int, "boolean": bool, "number": (int, float), "object": dict, "array": list}
+    python_types: dict[str, type[Any] | tuple[type[Any], ...]] = {
+        "string": str,
+        "integer": int,
+        "boolean": bool,
+        "number": (int, float),
+        "object": dict,
+        "array": list,
+    }
     for field, value in args.items():
         spec = properties.get(field)
         if not spec: continue
